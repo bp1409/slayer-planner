@@ -1,0 +1,11 @@
+# Changelog
+
+## 1.0.0
+
+- Rebuilt the planner as one responsive workspace with configuration, results, loot, and keyboard-accessible Settings and Help dialogs.
+- Set boss XP and quest fees from each Slayer's live quest tiers. Added independent Aatrox controls, observed XP, and input validation.
+- Added real XP milestones, target completion feedback, and explicit time and fee estimates.
+- Persisted valid plans for each Slayer and added defaults, number and time formats, theme, reduced motion, and reset controls.
+- Added calculation and browser tests and lowered the desktop window minimum to 680 × 520.
+- Added quest access checks and opt-in future-tier estimates. Verified the quest and loot data against the live game references.
+- Blocked WebView network requests in production, sanitized build-machine paths in release binaries, and limited release-write permissions to the Linux publishing job.
