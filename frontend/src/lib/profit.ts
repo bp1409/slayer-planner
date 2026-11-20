@@ -2,6 +2,7 @@ import { bazaarProductIds as verifiedIds } from "./bazaar.ts";
 import type { calculatePlan, PlanInputs } from "./calculator.ts";
 import { slayerIds, slayers, type SlayerId } from "../data/slayers.ts";
 import { slayerLoot } from "./loot.ts";
+import { isFreshBazaarPrice } from "./bazaar.ts";
 
 export type PriceTable = {
   prices: Record<string, number>;
@@ -54,10 +55,12 @@ export function loadPriceTable(): PriceTable {
         if (bazaarProductIds[item] === verifiedIds[item] && verifiedIds[item] && validPrice(value)) bazaarPrices[item] = value;
       }
     }
+    const bazaarFetchedAt = typeof candidate.bazaarFetchedAt === "string" && isFreshBazaarPrice(candidate.bazaarFetchedAt)
+      ? candidate.bazaarFetchedAt : null;
     return {
-      prices, bazaarProductIds, bazaarPrices,
+      prices, bazaarProductIds, bazaarPrices: bazaarFetchedAt ? bazaarPrices : {},
       lastEdited: typeof candidate.lastEdited === "string" ? candidate.lastEdited : null,
-      bazaarFetchedAt: typeof candidate.bazaarFetchedAt === "string" ? candidate.bazaarFetchedAt : null,
+      bazaarFetchedAt,
     };
   } catch { return emptyPriceTable(); }
 }

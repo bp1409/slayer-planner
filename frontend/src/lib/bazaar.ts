@@ -5,6 +5,8 @@ export type BazaarSnapshot = {
 };
 
 export const bazaarPriceMaxAgeMs = 15 * 60 * 1000;
+export const bazaarResponseMaxBytes = 2_000_000;
+export const bazaarPriceMax = 1_000_000_000_000;
 
 export function isFreshBazaarPrice(fetchedAt: string, now = Date.now()) {
   const timestamp = Date.parse(fetchedAt);
@@ -64,10 +66,11 @@ export const bazaarProductIds: Readonly<Record<string, string>> = {
 };
 
 function isFiniteNonNegative(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= bazaarPriceMax;
 }
 
 export function parseBazaarResponse(value: unknown, productIds: Record<string, string>, fetchedAt: string): BazaarSnapshot {
+  if (!isFreshBazaarPrice(fetchedAt)) throw new Error("Bazaar returned an invalid or stale timestamp.");
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Bazaar returned an invalid response.");
   const { success, products } = value as { success?: unknown; products?: unknown };
   if (success === false) throw new Error("Hypixel reported a Bazaar API failure.");
@@ -92,7 +95,14 @@ export async function fetchBazaarPrices(productIds: Record<string, string>, fetc
     throw new Error("Bazaar is unreachable. Check your connection and try again.");
   }
   if (!response.ok) throw new Error(`Bazaar request failed (${response.status}).`);
-  const body = await response.json().catch(() => null);
+  const contentLength = response.headers.get("content-length");
+  if (contentLength && (!/^\d+$/.test(contentLength) || Number(contentLength) > bazaarResponseMaxBytes)) {
+    throw new Error("Bazaar response is too large.");
+  }
+  const bodyText = await response.text().catch(() => "");
+  if (new TextEncoder().encode(bodyText).byteLength > bazaarResponseMaxBytes) throw new Error("Bazaar response is too large.");
+  let body: unknown = null;
+  try { body = JSON.parse(bodyText); } catch { /* handled by the response validator */ }
   const snapshot = parseBazaarResponse(body, productIds, new Date().toISOString());
   if (Object.keys(snapshot.prices).length === 0) throw new Error("Bazaar returned no prices for mapped drops.");
   return snapshot;
