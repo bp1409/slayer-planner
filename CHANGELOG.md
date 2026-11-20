@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+- Added a GitHub Pages-ready static web build with a PWA manifest and offline service worker.
+- Added version-tagged web deployment and explicit Tauri/web feature detection.
+
 ## 1.0.0
 
 - Rebuilt the planner as one responsive workspace with configuration, results, loot, and keyboard-accessible Settings and Help dialogs.
