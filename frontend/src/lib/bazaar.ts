@@ -5,7 +5,9 @@ export type BazaarSnapshot = {
 };
 
 export const bazaarPriceMaxAgeMs = 15 * 60 * 1000;
-export const bazaarResponseMaxBytes = 2_000_000;
+// The live Bazaar payload is currently roughly 3.6 MB and changes as products are added.
+// Keep a bounded limit while leaving room for normal API growth.
+export const bazaarResponseMaxBytes = 8_000_000;
 export const bazaarPriceMax = 1_000_000_000_000;
 
 export function isFreshBazaarPrice(fetchedAt: string, now = Date.now()) {

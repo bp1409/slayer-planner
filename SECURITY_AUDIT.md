@@ -137,7 +137,7 @@ Remediation: add npm and Cargo Dependabot entries for `web-wrapper` and require 
 
 #### M-05 — Bazaar response size and numeric bounds are not explicitly limited
 
-Remediation status: Fixed in code and regression tests. Bazaar responses now have a 2 MB limit, verified product IDs, bounded finite prices, valid/fresh timestamps and safe cached-price fallback.
+Remediation status: Fixed in code and regression tests. Bazaar responses now have an 8 MB bounded limit (the live payload observed at retest was approximately 3.6 MB), verified product IDs, bounded finite prices, valid/fresh timestamps and safe cached-price fallback.
 
 Evidence:
 

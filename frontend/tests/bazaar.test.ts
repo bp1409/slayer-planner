@@ -28,6 +28,9 @@ test("rejects malformed Bazaar responses and ignores unsafe product IDs", () => 
 
 test("surfaces Bazaar network, HTTP, malformed JSON, API and no-price failures", async () => {
   const ids = { Flesh: "REVENANT_FLESH" };
+  const currentSizedResponse = JSON.stringify({ products: { REVENANT_FLESH: { quick_status: { sellPrice: 12.5 } } }, padding: "x".repeat(3_500_000) });
+  const currentSizedSnapshot = await fetchBazaarPrices(ids, async () => new Response(currentSizedResponse));
+  assert.equal(currentSizedSnapshot.prices.Flesh?.sellPrice, 12.5);
   await assert.rejects(fetchBazaarPrices(ids, async () => { throw new TypeError("offline"); }), /unreachable/);
   await assert.rejects(fetchBazaarPrices(ids, async () => new Response(null, { status: 429 })), /429/);
   await assert.rejects(fetchBazaarPrices(ids, async () => new Response("{")), /invalid response/);
