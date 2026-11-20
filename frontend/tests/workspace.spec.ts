@@ -167,3 +167,15 @@ test("navigates the workspace and Help by keyboard", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(help).toBeFocused();
 });
+
+test("share dialog rejects malformed and malicious plan input", async ({ page }) => {
+  await page.getByRole("button", { name: "Share plan", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Share plan" });
+  const json = dialog.getByLabel("Import plan JSON");
+  await json.fill("not json");
+  await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("malformed");
+  await json.fill('{"v":1,"plan":{"slayer":"zombie","currentXp":0,"targetLevel":5,"tier":1,"confirmedAccess":false,"secondsPerBoss":60,"aatroxXp":false,"slashedPricing":false},"__proto__":{"polluted":true}}');
+  await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("unsupported");
+});
