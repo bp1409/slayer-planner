@@ -37,6 +37,10 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
       - run: npm ci
       - run: npm test
+      - name: Check package versions match
+        shell: bash
+        run: |
+          node -e 'const fs=require("fs"); const pkg=JSON.parse(fs.readFileSync("package.json")); const cargo=fs.readFileSync("src-tauri/Cargo.toml","utf8").match(/^version\s*=\s*"([^"]+)"/m)?.[1]; const tauri=JSON.parse(fs.readFileSync("src-tauri/tauri.conf.json")).version; if (!cargo || pkg.version !== cargo || pkg.version !== tauri) { console.error({package:pkg.version,cargo,tauri}); process.exit(1); }'
       - run: npm run tauri:build -- --no-bundle
       - name: Reject Pages base path in desktop artifact
         shell: bash
