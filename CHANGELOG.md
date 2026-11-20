@@ -9,3 +9,8 @@
 - Added calculation and browser tests and lowered the desktop window minimum to 680 × 520.
 - Added quest access checks and opt-in future-tier estimates. Verified the quest and loot data against the live game references.
 - Blocked WebView network requests in production, sanitized build-machine paths in release binaries, and limited release-write permissions to the Linux publishing job.
+
+## 1.1.0
+
+- Rewrote the repository front door with download, web, screenshot, contribution, and offline-use guidance.
+- Added suggested GitHub repository topics.
