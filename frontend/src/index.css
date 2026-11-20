@@ -33,6 +33,8 @@ small { font-size: var(--font-meta); }
 .text-button { padding: 0 var(--space-2); font-size: var(--font-small); }
 .button { padding: var(--space-1) var(--space-3); border: 1px solid var(--control-line); background: var(--raised); }
 .icon-button:hover, .text-button:hover, .button:hover { background: var(--hover); color: var(--text); }
+.disabled-action { display: inline-flex; }
+.disabled-action .icon-button { color: var(--muted); }
 .share-plan { display: grid; gap: var(--space-2); }
 .share-plan p { margin: 0; }
 .share-plan textarea { min-height: 120px; width: 100%; resize: vertical; padding: var(--space-2); color: var(--text); background: var(--surface); border: 1px solid var(--control-line); border-radius: var(--radius-control); font: var(--font-small) ui-monospace, monospace; }

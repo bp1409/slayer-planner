@@ -6,9 +6,9 @@ import { fetchBazaarPrices, suggestedBazaarProductId } from "./lib/bazaar";
 export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceTable; onChange: (table: PriceTable) => void; bazaarEnabled: boolean }) {
   const [prices, setPrices] = useState(table.prices);
   const [message, setMessage] = useState("");
-  const [productIds, setProductIds] = useState(() => Object.fromEntries(
+  const productIds = Object.fromEntries(
     lootItems().map((item) => [item, table.bazaarProductIds[item] ?? suggestedBazaarProductId(item)]),
-  ));
+  );
   const [refreshing, setRefreshing] = useState(false);
   function update(item: string, raw: string) {
     const value = raw === "" ? 0 : Number(raw);
@@ -35,20 +35,9 @@ export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceT
     <p className="field-note">Last edited: {table.lastEdited ?? "Never"}</p>
     {bazaarEnabled && <section className="bazaar-editor" aria-labelledby="bazaar-title">
       <h3 id="bazaar-title">Optional Bazaar refresh</h3>
-      <p className="field-note">Product IDs are suggested from the existing drop names and remain editable. Bazaar sell prices override matching local prices until the next refresh; unmapped drops keep their local values. No plan data is sent.</p>
-      <div className="price-list">{lootItems().map((item) => <div className="price-row" key={`bazaar-${item}`}>
-        <label htmlFor={`bazaar-${item}`}>{item}</label>
-        <input id={`bazaar-${item}`} placeholder="e.g. REVENANT_FLESH" value={productIds[item] ?? ""}
-          onChange={(event) => {
-            const value = event.currentTarget.value.toUpperCase();
-            const next = { ...productIds };
-            if (value) next[item] = value; else delete next[item];
-            setProductIds(next);
-            onChange({ ...table, bazaarProductIds: next });
-          }} aria-label={`Bazaar product ID for ${item}`} />
-      </div>)}</div>
+      <p className="field-note">Bazaar sell prices are matched automatically to the bundled drop table. They override matching local prices until the next refresh; unavailable drops keep their local values. No plan data is sent.</p>
       <button type="button" className="button" disabled={refreshing} onClick={() => void refreshBazaar()}>
-        {refreshing ? "Refreshing Bazaar…" : "Refresh Bazaar sell prices"}
+        {refreshing ? "Refreshing Bazaar…" : "Refresh Bazaar prices"}
       </button>
       {table.bazaarFetchedAt && <p className="field-note">Last Bazaar refresh: {new Date(table.bazaarFetchedAt).toLocaleString()}</p>}
     </section>}

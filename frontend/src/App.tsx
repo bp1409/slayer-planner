@@ -29,6 +29,7 @@ export default function App() {
   const theme = preferences.theme === "system" ? (systemDark ? "dark" : "light") : preferences.theme;
   const nextTheme = theme === "dark" ? "light" : "dark";
   const slayer = slayers[workspace.slayer];
+  const bazaarEnabled = preferences.allowBazaar && !("__TAURI__" in window);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -59,9 +60,13 @@ export default function App() {
         <Modal title="Settings" icon={<Settings size={18} aria-hidden="true" />}>
           <PlannerSettings preferences={preferences} onChange={setPreferences} />
         </Modal>
-        <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
-          <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled={preferences.allowBazaar && !("__TAURI__" in window)} />
-        </Modal>
+        {bazaarEnabled ? <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
+          <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled />
+        </Modal> : <span className="disabled-action" title="Enable Bazaar Pricing to Refresh">
+          <button type="button" className="icon-button" aria-label="Profit (enable Bazaar Pricing to refresh)" disabled>
+            <CircleDollarSign size={18} aria-hidden="true" />
+          </button>
+        </span>}
         <Modal title="Share plan" icon={<Share2 size={18} aria-hidden="true" />}>
           <SharePlan plan={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)} onImport={(plan) => {
             setWorkspace((previous) => ({ ...previous, slayer: plan.slayer, plans: { ...previous.plans, [plan.slayer]: plan } }));

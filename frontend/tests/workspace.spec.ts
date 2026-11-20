@@ -221,6 +221,10 @@ test("a second visit works offline after the service worker precache", async ({ 
 });
 
 test("local prices update the approximate coins-per-hour table", async ({ page }) => {
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const settings = page.getByRole("dialog", { name: "Settings" });
+  await settings.getByLabel("Enable Bazaar Pricing (web only)").check();
+  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Profit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Profit" });
   await expect(dialog).toContainText("Approximate local prices only");
@@ -235,8 +239,8 @@ test("local prices update the approximate coins-per-hour table", async ({ page }
 test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page }) => {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   const settings = page.getByRole("dialog", { name: "Settings" });
-  await expect(settings.getByLabel("Enable Bazaar prices (web only)")).not.toBeChecked();
-  await settings.getByLabel("Enable Bazaar prices (web only)").check();
+  await expect(settings.getByLabel("Enable Bazaar Pricing (web only)")).not.toBeChecked();
+  await settings.getByLabel("Enable Bazaar Pricing (web only)").check();
   await page.keyboard.press("Escape");
   await page.route("https://api.hypixel.net/v2/skyblock/bazaar", async (route) => route.fulfill({
     status: 200, contentType: "application/json", body: JSON.stringify({ products: {
@@ -245,9 +249,15 @@ test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page })
   }));
   await page.getByRole("button", { name: "Profit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Profit" });
-  await expect(dialog.getByLabel("Bazaar product ID for Revenant Flesh")).toHaveValue("REVENANT_FLESH");
-  await dialog.getByRole("button", { name: "Refresh Bazaar sell prices" }).click();
+  await expect(dialog.getByLabel("Bazaar product ID for Revenant Flesh")).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Refresh Bazaar prices" }).click();
   await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
   await page.keyboard.press("Escape");
   await expect(page.locator(".profit-panel .metadata")).toHaveText("Bazaar sell prices");
+});
+
+test("Bazaar button is disabled with an opt-in tooltip", async ({ page }) => {
+  const profit = page.getByRole("button", { name: /Profit \(enable Bazaar Pricing to refresh\)/ });
+  await expect(profit).toBeDisabled();
+  await expect(profit.locator(".." )).toHaveAttribute("title", "Enable Bazaar Pricing to Refresh");
 });
