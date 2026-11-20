@@ -83,8 +83,19 @@ export function loadWorkspace(): Workspace {
   if (saved.plans && typeof saved.plans === "object") {
     for (const [id, candidate] of Object.entries(saved.plans)) {
       if (!isSlayerId(id) || !candidate || typeof candidate !== "object") continue;
-      const savedPlan = candidate as PlanInputs;
-      if (savedPlan.slayer !== id) continue;
+      const raw = candidate as Record<string, unknown>;
+      if (raw.slayer !== id) continue;
+      const savedPlan: PlanInputs = {
+        slayer: id,
+        currentXp: raw.currentXp as number,
+        targetLevel: raw.targetLevel as number,
+        tier: raw.tier as number,
+        secondsPerBoss: raw.secondsPerBoss as number,
+        aatroxXp: raw.aatroxXp === true,
+        slashedPricing: raw.slashedPricing === true,
+        ...(typeof raw.confirmedAccess === "boolean" ? { confirmedAccess: raw.confirmedAccess } : {}),
+        ...(typeof raw.observedXp === "number" ? { observedXp: raw.observedXp } : {}),
+      };
       const slayer = slayers[id];
       const supportedTier = integerPreference(savedPlan.tier, slayer.tiers.length, 0);
       const plan: PlanInputs = {

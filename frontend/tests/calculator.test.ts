@@ -135,6 +135,18 @@ test("legacy saved plans retain a locked tier and prompt for obsolete tiers", (c
   assert.equal(newPlan("wolf", preferences).tier, 0);
 });
 
+test("saved workspace plans use a whitelist of known fields", (context) => {
+  const values = new Map([["slayer-planner-workspace", JSON.stringify({ slayer: "zombie", plans: {
+    zombie: { ...inputs, unknownSecret: "discard me" },
+  } })]]);
+  const storage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: { getItem: (key: string) => values.get(key) ?? null } });
+  context.after(() => { if (storage) Object.defineProperty(globalThis, "localStorage", storage); else Reflect.deleteProperty(globalThis, "localStorage"); });
+  const plan = loadWorkspace().plans.zombie;
+  assert.ok(plan);
+  assert.equal(Object.hasOwn(plan, "unknownSecret"), false);
+});
+
 test("Aatrox perks apply independently and fractional XP is identified as estimated", () => {
   const xpOnly = plan({ tier: 1, aatroxXp: true, currentXp: 4975 });
   assert.equal(xpOnly.xpPerBoss, 6.25);
