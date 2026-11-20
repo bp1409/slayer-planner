@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { calculatePlan } from "../src/lib/calculator.ts";
 import { loadCompletionTimes, saveCompletionTimes } from "../src/lib/preferences.ts";
-import { coinsPerHour, estimateLoot, estimateProfit } from "../src/lib/profit.ts";
+import { coinsPerHour, estimateLoot, estimateProfit, compareSlayers } from "../src/lib/profit.ts";
+import { planProgression } from "../src/lib/progression.ts";
+import { createBugReport } from "../src/lib/bugReport.ts";
 
 const plan = { slayer: "zombie", tier: 1, currentXp: 0, targetLevel: 2, secondsPerBoss: 60,
   aatroxXp: false, slashedPricing: false } as const;
@@ -70,4 +72,20 @@ test("completion times persist independently by Slayer and tier", (t) => {
   assert.deepEqual(loadCompletionTimes(), times);
   assert.equal(coinsPerHour(10, times.zombie[1].spawn + times.zombie[1].kill), 1200);
   for (const seconds of [0, -1, NaN, Infinity]) assert.equal(coinsPerHour(100, seconds), null);
+});
+
+test("progression uses verified tiers and comparison marks missing prices", () => {
+  const steps = planProgression({ ...plan, targetLevel: 3 }, true);
+  assert.ok(steps.length > 0);
+  assert.ok(steps.every((step) => step.bosses > 0 && step.fee >= 0));
+  const comparison = compareSlayers({ zombie: 60 }, { "Revenant Flesh": 10 });
+  assert.equal(comparison.length, 27);
+  assert.equal(comparison.find((row) => row.slayer === "zombie" && row.tier === 1)?.incomplete, true);
+});
+
+test("bug reports contain only safe diagnostic fields", () => {
+  const report = createBugReport("Open the planner and select Tier II.");
+  assert.match(report, /App version: 1\.1\.0/);
+  assert.match(report, /Reproduction steps:/);
+  assert.doesNotMatch(report, /localStorage|api-key|password/);
 });

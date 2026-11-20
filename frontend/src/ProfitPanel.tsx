@@ -6,6 +6,7 @@ import { formatNumber } from "./lib/formatting";
 import { isCompletionTime, type CompletionTime } from "./lib/preferences";
 import { isFreshBazaarPrice } from "./lib/bazaar";
 import { coinsPerHour, estimateProfit, type PriceTable } from "./lib/profit";
+import { planProgression } from "./lib/progression";
 
 function display(value: number | null, signed = false) {
   if (value === null) return "—";
@@ -73,6 +74,8 @@ export function ProfitPanel({ plan, result, time, onTimeChange, table, bazaarEna
           {rift && <tr><th scope="row">Total item loot</th><td>{display(estimate.loot.coins * result.bosses)} coins</td></tr>}
         </tbody>
       </table></div>
+      <p className="field-note">Automatic progression uses verified accessible tiers and stops when a prerequisite is uncertain. Manual tier selection remains available above.</p>
+      {planProgression(plan).length > 1 && <p className="field-note">Suggested progression: {planProgression(plan).map((step) => `Tier ${step.tier} × ${step.bosses}`).join(", ")}.</p>}
     </> : <p className="field-note">Complete the quest plan inputs to see the profit estimate.</p>}
   </section>;
 }

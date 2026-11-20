@@ -10,6 +10,7 @@ export type PriceTable = {
   bazaarPrices: Record<string, number>;
   bazaarFetchedAt: string | null;
 };
+export type SlayerComparison = { slayer: SlayerId; tier: number; xpPerHour: number | null; netCoinsPerHour: number | null; timeSeconds: number; incomplete: boolean };
 
 
 const priceTableKey = "slayer-planner-prices";
@@ -118,4 +119,15 @@ export function estimateProfit(
     netPerHour: coinsPerHour(netPerBoss, secondsPerBoss),
     totalNet: result.bosses * netPerBoss,
   };
+}
+
+export function compareSlayers(secondsBySlayer: Partial<Record<SlayerId, number>>, prices: Record<string, number>): SlayerComparison[] {
+  return slayerIds.flatMap((slayer) => slayers[slayer].tiers.map((_, index) => {
+    const seconds = secondsBySlayer[slayer] ?? 0;
+    const loot = estimateLoot(slayer, index + 1, slayers[slayer].thresholds.length, prices);
+    const fee = slayers[slayer].tiers[index][1];
+    const net = coinsPerHour(loot.coins - fee, seconds);
+    const xp = coinsPerHour(slayers[slayer].tiers[index][0], seconds);
+    return { slayer, tier: index + 1, xpPerHour: xp, netCoinsPerHour: net, timeSeconds: seconds, incomplete: loot.missing.length > 0 };
+  }));
 }

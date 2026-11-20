@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
-import { CircleDollarSign, CircleHelp, Crosshair, Moon, Settings, Share2, Sun } from "lucide-react";
+import { Bug, CircleDollarSign, CircleHelp, Crosshair, Moon, Settings, Share2, Sun } from "lucide-react";
 import { Modal } from "./components/ui/Modal";
 import { Calculator } from "./components/calculator/Calculator";
 import { PlannerHelp } from "./PlannerHelp";
@@ -11,6 +11,9 @@ import { SharePlan } from "./SharePlan";
 import { ProfitEditor } from "./ProfitEditor";
 import { ProfitPanel } from "./ProfitPanel";
 import { loadPriceTable, savePriceTable, type PriceTable } from "./lib/profit";
+import { loadProfiles, saveProfiles, type GrindingProfile } from "./lib/profiles";
+import { ProfileManager } from "./ProfileManager";
+import { BugReport } from "./BugReport";
 
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -24,6 +27,8 @@ export default function App() {
   const [workspace, setWorkspace] = useState(loadWorkspace);
   const [priceTable, setPriceTable] = useState<PriceTable>(loadPriceTable);
   const [completionTimes, setCompletionTimes] = useState(loadCompletionTimes);
+  const [profiles, setProfiles] = useState<GrindingProfile[]>(() => loadProfiles(loadCompletionTimes()));
+  const [activeProfileId, setActiveProfileId] = useState(() => loadProfiles(loadCompletionTimes())[0].id);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const systemDark = useSyncExternalStore(subscribeToTheme, () => systemTheme.matches);
   const theme = preferences.theme === "system" ? (systemDark ? "dark" : "light") : preferences.theme;
@@ -38,6 +43,7 @@ export default function App() {
   useEffect(() => savePreferences(preferences), [preferences]);
   useEffect(() => saveWorkspace(workspace), [workspace]);
   useEffect(() => saveCompletionTimes(completionTimes), [completionTimes]);
+  useEffect(() => saveProfiles(profiles), [profiles]);
   useEffect(() => savePriceTable(priceTable), [priceTable]);
 
   return <>
@@ -52,7 +58,9 @@ export default function App() {
         </button>
         <Modal title="Settings" icon={<Settings size={18} aria-hidden="true" />}>
           <PlannerSettings preferences={preferences} onChange={setPreferences} />
+          <ProfileManager profiles={profiles} activeId={activeProfileId} onSelect={(id) => { setActiveProfileId(id); const profile = profiles.find((item) => item.id === id); if (profile) setCompletionTimes(profile.completionTimes); }} onChange={setProfiles} />
         </Modal>
+        <Modal title="Bug report" icon={<Bug size={18} aria-hidden="true" />}><BugReport /></Modal>
         <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
           <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled={bazaarEnabled} />
         </Modal>
@@ -78,9 +86,11 @@ export default function App() {
         renderProfit={(plan, result) => <ProfitPanel key={plan.slayer + ":" + plan.tier}
           plan={plan} result={result} table={priceTable} bazaarEnabled={bazaarEnabled}
           time={completionTimes[plan.slayer]?.[plan.tier]}
-          onTimeChange={(time) => setCompletionTimes((previous) => ({
-            ...previous, [plan.slayer]: { ...previous[plan.slayer], [plan.tier]: time },
-          }))} />} />
+          onTimeChange={(time) => setCompletionTimes((previous) => {
+            const next = { ...previous, [plan.slayer]: { ...previous[plan.slayer], [plan.tier]: time } };
+            setProfiles((items) => items.map((profile) => profile.id === activeProfileId ? { ...profile, completionTimes: next } : profile));
+            return next;
+          })} />} />
     </main>
   </>;
 }
