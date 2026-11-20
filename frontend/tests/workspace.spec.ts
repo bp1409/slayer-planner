@@ -96,7 +96,7 @@ test("settings, theme, persisted defaults and Escape work", async ({ page }) => 
   await settings.click();
   await dialog.getByRole("button", { name: "Reset preferences" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(dialog).toContainText("Signed update checks are unavailable");
+  await expect(dialog).not.toContainText("Signed update checks");
 });
 
 test("shows the audited game-data date", async ({ page }) => {
@@ -118,7 +118,7 @@ test("bug report requires consent and reports delivery failures", async ({ page 
   const send = dialog.getByRole("button", { name: "Send bug report", exact: true });
   await expect(send).toBeDisabled();
   await dialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
-  await dialog.getByText("Allow this report and future anonymous error reports to be sent").click();
+  await dialog.getByText("Allow this report and future error reports to be sent").click();
   await expect(send).toBeEnabled();
   await page.context().setOffline(true);
   await send.click();
@@ -132,7 +132,7 @@ test("bug report consent persists and successful delivery is mocked", async ({ p
   await page.route("https://o4512464093184000.ingest.de.sentry.io/**", (route) => route.fulfill({ status: 200, body: "" }));
   await page.getByRole("button", { name: "Bug report", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Bug report" });
-  const consent = dialog.getByLabel("Allow this report and future anonymous error reports to be sent", { exact: false });
+  const consent = dialog.getByLabel("Allow this report and future error reports to be sent", { exact: false });
   await expect(consent).not.toBeChecked();
   await dialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
   await consent.check();
@@ -141,7 +141,7 @@ test("bug report consent persists and successful delivery is mocked", async ({ p
   await page.reload();
   await page.getByRole("button", { name: "Bug report", exact: true }).click();
   const reloadedDialog = page.getByRole("dialog", { name: "Bug report" });
-  await expect(reloadedDialog.getByLabel("Allow this report and future anonymous error reports to be sent", { exact: false })).toBeChecked();
+  await expect(reloadedDialog.getByLabel("Allow this report and future error reports to be sent", { exact: false })).toBeChecked();
   await reloadedDialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
   await reloadedDialog.getByRole("button", { name: "Send bug report", exact: true }).click();
   await expect(reloadedDialog.getByRole("status")).toContainText("queued for Sentry delivery");

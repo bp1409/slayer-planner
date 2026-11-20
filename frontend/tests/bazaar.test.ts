@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bazaarPriceMaxAgeMs, bazaarProductIds, fetchBazaarPrices, isFreshBazaarPrice, parseBazaarResponse } from "../src/lib/bazaar.ts";
+import { bazaarPriceMax, bazaarPriceMaxAgeMs, bazaarProductIds, bazaarResponseMaxBytes, fetchBazaarPrices, isFreshBazaarPrice, parseBazaarResponse } from "../src/lib/bazaar.ts";
 
 test("maps verified product IDs without inventing IDs for unmapped drops", () => {
   assert.equal(bazaarProductIds["Revenant Flesh"], "REVENANT_FLESH");
@@ -13,15 +13,17 @@ test("parses only finite non-negative Bazaar sell prices for requested IDs", () 
   const result = parseBazaarResponse({ products: {
     REVENANT_FLESH: { quick_status: { sellPrice: 12.5 } },
     BAD: { quick_status: { sellPrice: -1 } },
-  } }, { "Revenant Flesh": "REVENANT_FLESH", Missing: "BAD" }, "2026-11-20T00:00:00.000Z");
-  assert.deepEqual(result.prices, { "Revenant Flesh": { sellPrice: 12.5, fetchedAt: "2026-11-20T00:00:00.000Z" } });
+  } }, { "Revenant Flesh": "REVENANT_FLESH", Missing: "BAD" }, new Date().toISOString());
+  assert.equal(result.prices["Revenant Flesh"]?.sellPrice, 12.5);
 });
 
 test("rejects malformed Bazaar responses and ignores unsafe product IDs", () => {
-  assert.throws(() => parseBazaarResponse(null, {}, "now"), /invalid response/);
-  assert.throws(() => parseBazaarResponse({ products: [] }, {}, "now"), /no product list/);
-  const result = parseBazaarResponse({ products: { X: { quick_status: { sellPrice: 4 } } } }, { Safe: "X", Unsafe: "javascript:alert(1)" }, "now");
+  assert.throws(() => parseBazaarResponse(null, {}, new Date().toISOString()), /invalid response/);
+  assert.throws(() => parseBazaarResponse({ products: [] }, {}, new Date().toISOString()), /no product list/);
+  const result = parseBazaarResponse({ products: { X: { quick_status: { sellPrice: 4 } } } }, { Safe: "X", Unsafe: "javascript:alert(1)" }, new Date().toISOString());
   assert.deepEqual(Object.keys(result.prices), ["Safe"]);
+  assert.throws(() => parseBazaarResponse({ products: {} }, {}, "not-a-timestamp"), /timestamp/);
+  assert.deepEqual(parseBazaarResponse({ products: { X: { quick_status: { sellPrice: bazaarPriceMax + 1 } } } }, { Safe: "X" }, new Date().toISOString()).prices, {});
 });
 
 test("surfaces Bazaar network, HTTP, malformed JSON, API and no-price failures", async () => {
@@ -29,6 +31,8 @@ test("surfaces Bazaar network, HTTP, malformed JSON, API and no-price failures",
   await assert.rejects(fetchBazaarPrices(ids, async () => { throw new TypeError("offline"); }), /unreachable/);
   await assert.rejects(fetchBazaarPrices(ids, async () => new Response(null, { status: 429 })), /429/);
   await assert.rejects(fetchBazaarPrices(ids, async () => new Response("{")), /invalid response/);
+  await assert.rejects(fetchBazaarPrices(ids, async () => new Response("x".repeat(bazaarResponseMaxBytes + 1))), /too large/);
+  await assert.rejects(fetchBazaarPrices(ids, async () => new Response("{}", { headers: { "content-length": String(bazaarResponseMaxBytes + 1) } })), /too large/);
   await assert.rejects(fetchBazaarPrices(ids, async () => Response.json({ success: false })), /API failure/);
   await assert.rejects(fetchBazaarPrices(ids, async () => Response.json({ products: {} })), /no prices/);
 });
