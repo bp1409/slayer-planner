@@ -1,0 +1,10 @@
+hypixel
+hypixel-skyblock
+skyblock
+slayer
+slayer-xp
+xp-planner
+react
+typescript
+tauri
+offline-first

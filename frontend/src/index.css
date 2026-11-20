@@ -33,6 +33,10 @@ small { font-size: var(--font-meta); }
 .text-button { padding: 0 var(--space-2); font-size: var(--font-small); }
 .button { padding: var(--space-1) var(--space-3); border: 1px solid var(--control-line); background: var(--raised); }
 .icon-button:hover, .text-button:hover, .button:hover { background: var(--hover); color: var(--text); }
+.share-plan { display: grid; gap: var(--space-2); }
+.share-plan p { margin: 0; }
+.share-plan textarea { min-height: 120px; width: 100%; resize: vertical; padding: var(--space-2); color: var(--text); background: var(--surface); border: 1px solid var(--control-line); border-radius: var(--radius-control); font: var(--font-small) ui-monospace, monospace; }
+.share-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .icon-button[aria-expanded="true"] { background: var(--selected); color: var(--accent); }
 
 .workspace { max-width: 72rem; margin: 0 auto; padding: var(--space-6) clamp(var(--space-3), 3vw, var(--space-8)) var(--space-8); min-width: 0; }
@@ -70,6 +74,7 @@ small { font-size: var(--font-meta); }
 .field-note, .field-error { font-size: var(--font-small); }
 .field-error { color: var(--error); }
 .field-note { color: var(--muted); }
+.data-status { display: block; margin-top: var(--space-1); color: var(--accent); font-size: var(--font-small); }
 .tier-requirements {
   grid-column: 1 / -1;
   padding: var(--space-2) var(--space-3);

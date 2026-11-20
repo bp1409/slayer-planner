@@ -10,6 +10,7 @@ export type Preferences = {
   showMilestones: boolean;
   reduceMotion: boolean;
   allowFutureTiers: boolean;
+  allowUpdates: boolean;
   defaultTarget: number;
   defaultTier: number;
   defaultSeconds: number;
@@ -17,7 +18,7 @@ export type Preferences = {
 
 export const defaults: Preferences = {
   theme: "dark", numberFormat: "full", timeFormat: "units", showMilestones: true,
-  reduceMotion: false, allowFutureTiers: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
+  reduceMotion: false, allowFutureTiers: false, allowUpdates: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
 };
 
 const preferencesKey = "slayer-planner-preferences";
@@ -54,6 +55,7 @@ export function loadPreferences(): Preferences {
     showMilestones: (saved.showMilestones ?? saved.showChart) !== false,
     reduceMotion: saved.reduceMotion === true,
     allowFutureTiers: saved.allowFutureTiers === true,
+    allowUpdates: saved.allowUpdates === true,
     defaultTarget: integerPreference(saved.defaultTarget, 9, defaults.defaultTarget),
     defaultTier: integerPreference(saved.defaultTier, 5, defaults.defaultTier),
     defaultSeconds: typeof saved.defaultSeconds === "number" && isDecimalInRange(saved.defaultSeconds, 0, maxSeconds)

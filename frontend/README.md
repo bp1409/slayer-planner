@@ -33,3 +33,7 @@ Install the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisi
 The [game-data audit](GAME-DATA.md) records sources, verification dates and discrepancies for the live quest model and bundled loot tables.
 
 Calculation and validation are independent of React in `src/lib/calculator.ts`. Shared visual tokens live in `src/styles/tokens.css`.
+
+The static web build uses `/slayer-planner/` as its GitHub Pages base path and `/` locally. Service-worker registration is skipped inside Tauri. Run `npm test`, `npm run typecheck`, `npm run build`, and `npm run test:e2e` before submitting changes.
+
+The planner includes local plan sharing and shows the audit date for the bundled game data. The Tauri updater plugin is present but disabled until the user enables **Check for updates** and the release signing key is configured.

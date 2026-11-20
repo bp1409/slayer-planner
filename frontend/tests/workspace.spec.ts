@@ -93,6 +93,11 @@ test("settings, theme, persisted defaults and Escape work", async ({ page }) => 
   await settings.click();
   await dialog.getByRole("button", { name: "Reset preferences" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(dialog.getByLabel("Check for updates")).not.toBeChecked();
+});
+
+test("shows the audited game-data date", async ({ page }) => {
+  await expect(page.getByText("Game data verified on 19 November 2026", { exact: true })).toBeVisible();
 });
 
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {
@@ -166,4 +171,16 @@ test("navigates the workspace and Help by keyboard", async ({ page }) => {
   await expect(page.locator(".dialog-body")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(help).toBeFocused();
+});
+
+test("share dialog rejects malformed and malicious plan input", async ({ page }) => {
+  await page.getByRole("button", { name: "Share plan", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Share plan" });
+  const json = dialog.getByLabel("Import plan JSON");
+  await json.fill("not json");
+  await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("malformed");
+  await json.fill('{"v":1,"plan":{"slayer":"zombie","currentXp":0,"targetLevel":5,"tier":1,"confirmedAccess":false,"secondsPerBoss":60,"aatroxXp":false,"slashedPricing":false},"__proto__":{"polluted":true}}');
+  await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
+  await expect(dialog.getByRole("status")).toContainText("unsupported");
 });
