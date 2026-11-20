@@ -4,6 +4,7 @@ const DSN = "https://70168c4cd30f9414a9c60314af81104e@o4512464093184000.ingest.d
 const consentKey = "sentry-consent";
 let initialized = false;
 let closing: Promise<unknown> | undefined;
+export const sentryPrivacyOptions = { sendDefaultPii: false } as const;
 
 export function enabled() {
   try { return localStorage.getItem(consentKey) === "yes"; } catch { return false; }
@@ -63,7 +64,7 @@ function beforeSend(event: Sentry.ErrorEvent) {
 
 export function initSentry() {
   if (initialized || closing || !enabled()) return;
-  Sentry.init({ dsn: DSN, maxBreadcrumbs: 0, beforeSend });
+  Sentry.init({ dsn: DSN, maxBreadcrumbs: 0, ...sentryPrivacyOptions, beforeSend });
   initialized = true;
 }
 

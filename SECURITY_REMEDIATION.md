@@ -7,11 +7,11 @@ This branch remediates the audited `dev` tree without publishing a release, chan
 | Finding | Status | Notes |
 | --- | --- | --- |
 | H-01 remote-content wrapper | Fixed | The tracked `dev` tree contains no wrapper; the native app no longer loads mutable Pages content. The untracked local wrapper is excluded. |
-| H-02 artifact integrity | Partially fixed | Exact-tag builds, version/source checks, SHA-256 manifests and provenance attestations are configured. Signing is unavailable and blocks release. |
+| H-02 artifact integrity | Partially fixed | Exact-tag builds, version/source checks, filename-only SHA-256 manifests, duplicate-asset rejection and provenance-attestation verification are configured. Signing is unavailable and remains a release risk. |
 | H-03 updater | Fixed safely | Unsigned/placeholder updater code, capability, endpoint and UI were removed. |
 | M-01 glib advisory | Accepted risk pending approval | The current Tauri/GTK chain still reports the advisory; no incompatible upgrade was forced. |
 | M-02 Pages preview | Partially fixed | Production and preview workflows are separate and native code does not consume `/dev/`; branch and environment protection are manual. |
-| M-03 Sentry | Partially fixed | Consent, withdrawal, PII suppression and event sanitisation were strengthened; dashboard settings require manual verification. |
+| M-03 Sentry | Partially fixed | Consent, withdrawal, explicit `sendDefaultPii: false`, PII suppression and event sanitisation are enforced; dashboard settings require manual verification. |
 | M-04 Dependabot | Not applicable on target tree | `web-wrapper/` is not tracked on `dev`; tracked frontend and Cargo projects remain covered. |
 | M-05 Bazaar validation | Fixed | Response size, timestamps, product IDs, numeric bounds and cache fallback are validated and tested. |
 | L-01 licensing | Requires manual action | Owner must choose a project license and approve third-party notices. |
@@ -27,18 +27,19 @@ This branch remediates the audited `dev` tree without publishing a release, chan
 - Strengthened Sentry consent and event sanitisation and documented the privacy model in [`PRIVACY.md`](./PRIVACY.md).
 - Separated production Pages deployment from the `dev` preview deployment.
 - Added release source-commit checks, SHA-256 manifests and build-provenance attestations.
+- Release publishing now fails on tag drift, draft/missing releases, incomplete builds, invalid manifests, failed attestation verification, or pre-existing asset names; it never overwrites assets.
 - Added pinned CodeQL workflows for JavaScript/TypeScript and Rust.
 
 ## Remaining vulnerabilities and blockers
 
 - The glib advisory remains in the Tauri dependency chain and requires owner risk acceptance or a compatible upstream upgrade.
-- Installers are not signed because no valid signing credentials were available. Do not publish until signing and verification are configured.
+- Installers are not signed because no valid signing credentials were available. Signing and independent verification remain release risks.
 - No updater is shipped. Any future updater requires signed artifacts, a verified manifest and a reviewed key-management process.
 - Project licensing, Sentry dashboard controls, branch protection and Pages environment restrictions require owner action.
 
 ## Required GitHub settings
 
-Enable branch protection for `dev` and `main`, require the relevant verification and CodeQL checks, require pull requests and prevent force-push/deletion. Require SHA-pinned actions at the organization or repository level, restrict Pages deployment to the intended environments, and limit release publishing to trusted maintainers. Review Dependabot and secret-scanning alerts regularly.
+Enable branch protection for `dev` and `main`, require the relevant verification and CodeQL checks, require pull requests and prevent force-push/deletion. Protect `v*` tags, disable tag deletion/force-updates where supported, enable immutable releases if available, and restrict release publishing to a protected environment with approved maintainers. Require SHA-pinned actions at the organization or repository level, restrict Pages deployment to the intended environments, and review Dependabot and secret-scanning alerts regularly.
 
 ## Signing requirements
 
@@ -53,7 +54,7 @@ Set retention, inbound filtering, rate limits, data scrubbing and deletion polic
 - [ ] Review and accept or remediate the glib advisory.
 - [ ] Choose a project license and generate/approve third-party notices.
 - [ ] Configure protected GitHub environments, branch rules and required checks.
-- [ ] Configure valid platform signing credentials and independently verify signatures.
+- [ ] Configure valid platform signing credentials and independently verify signatures; until then, label installers unsigned.
 - [ ] Run the release workflow from a test tag and verify source commit, checksums and attestations.
 - [ ] Verify Sentry dashboard privacy settings and consent/withdrawal behavior.
 - [ ] Review the CodeQL results and all dependency alerts before release.

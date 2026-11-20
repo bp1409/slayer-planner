@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { redactSensitiveText, sanitizeEvent } from "../src/lib/sentry.ts";
+import { redactSensitiveText, sanitizeEvent, sentryPrivacyOptions } from "../src/lib/sentry.ts";
+
+test("Sentry explicitly disables default PII collection", () => {
+  assert.equal(sentryPrivacyOptions.sendDefaultPii, false);
+});
 
 test("Sentry privacy redaction removes common secrets and paths", () => {
   const text = redactSensitiveText("token=abc123 email@example.com https://example.test C:\\Users\\Ben\\plans.json Steps / expected");
