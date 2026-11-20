@@ -28,10 +28,11 @@ function parseDraft(draft: Draft): PlanInputs {
   };
 }
 
-export function Calculator({ initial, preferences, onFutureTiersChange, onSlayerChange, onSave, renderProfit }: {
+export function Calculator({ initial, preferences, onFutureTiersChange, onSlayerChange, onSave, bazaarPrices, renderProfit }: {
   initial: PlanInputs; preferences: Preferences;
   onFutureTiersChange: (allow: boolean) => void;
   onSlayerChange: (slayer: PlanInputs["slayer"]) => void; onSave: (plan: PlanInputs) => void;
+  bazaarPrices: Record<string, number>;
   renderProfit: (plan: PlanInputs, result: ReturnType<typeof calculatePlan>) => ReactNode;
 }) {
   const [draft, setDraft] = useState(() => draftFrom(initial));
@@ -154,7 +155,7 @@ export function Calculator({ initial, preferences, onFutureTiersChange, onSlayer
       </section>
       <Results result={result} input={plan} preferences={preferences} baseFee={baseFee} />
     </div>
-    <LootTable boss={slayer.boss} tier={draft.tier} currentLevel={currentXpError ? undefined : access.currentLevel} />
+    <LootTable boss={slayer.boss} tier={draft.tier} currentLevel={currentXpError ? undefined : access.currentLevel} bazaarPrices={bazaarPrices} />
     {renderProfit(plan, result)}
   </>;
 }

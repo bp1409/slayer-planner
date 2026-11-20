@@ -296,5 +296,6 @@ test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page })
   await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
   await page.keyboard.press("Escape");
   await expect(page.locator(".profit-panel .metadata")).toHaveText("Local and Bazaar pricing");
+  await expect(page.getByRole("region", { name: "Loot reference" }).getByRole("row", { name: /Revenant Flesh/ })).toContainText("10 coins");
 });
 // @ts-nocheck

@@ -133,13 +133,16 @@ progress::-moz-progress-bar { background: var(--accent-fill); }
 .loot { margin-top: var(--space-5); }
 .loot p, .source-link { display: block; margin: var(--space-3) var(--space-5); font-size: var(--font-small); color: var(--muted); }
 .loot .source-link { width: fit-content; color: var(--accent); }
-.loot table { width: 100%; border-collapse: collapse; }
-.loot th, .loot td { padding: var(--space-1) var(--space-3); text-align: start; border-bottom: 1px solid var(--line); }
+.loot-table-wrap { overflow-x: auto; }
+.loot table { width: 100%; min-width: 38rem; border-collapse: collapse; }
+.loot th, .loot td { padding: var(--space-2) var(--space-3); text-align: start; vertical-align: middle; border-bottom: 1px solid var(--line); }
 .loot th:first-child { padding-inline-start: var(--space-5); }
 .loot th:last-child, .loot td:last-child { padding-inline-end: var(--space-5); }
 .loot thead { background: var(--raised); color: var(--secondary); font-size: var(--font-small); }
 .loot tbody th { font-weight: 500; overflow-wrap: anywhere; }
 .loot td, .loot thead th:nth-child(n+2) { text-align: end; font-variant-numeric: tabular-nums; }
+.loot thead th:nth-child(2), .loot tbody td:nth-child(2) { min-width: 8.5rem; }
+.loot-price { color: var(--accent); white-space: nowrap; }
 .loot tbody tr:hover { background: var(--hover); }
 .loot-locked { margin-inline-start: var(--space-2); color: var(--muted); }
 .profit-panel { margin-top: var(--space-5); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-surface); }
@@ -193,7 +196,7 @@ progress::-moz-progress-bar { background: var(--accent-fill); }
   .configuration > .check-row, .modifiers { margin-inline: var(--space-3); }
   .profit-panel { padding: var(--space-3); }
   .profit-table th, .profit-table td { padding-inline: var(--space-1); font-size: var(--font-meta); }
-  .loot th, .loot td, .loot th:first-child, .loot th:last-child, .loot td:last-child { padding-inline: var(--space-1); }
+  .loot th, .loot td, .loot th:first-child, .loot th:last-child, .loot td:last-child { padding-inline: var(--space-2); }
   .loot thead th, .loot td { font-size: var(--font-meta); }
   .loot-locked { display: block; margin: 0; }
 }

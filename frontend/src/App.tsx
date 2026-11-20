@@ -14,6 +14,7 @@ import { loadPriceTable, savePriceTable, type PriceTable } from "./lib/profit";
 import { loadProfiles, saveProfiles, type GrindingProfile } from "./lib/profiles";
 import { ProfileManager } from "./ProfileManager";
 import { BugReport } from "./BugReport";
+import { isFreshBazaarPrice } from "./lib/bazaar";
 
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -35,6 +36,8 @@ export default function App() {
   const nextTheme = theme === "dark" ? "light" : "dark";
   const slayer = slayers[workspace.slayer];
   const bazaarEnabled = preferences.allowBazaar && !("__TAURI__" in window);
+  const bazaarPrices = bazaarEnabled && priceTable.bazaarFetchedAt && isFreshBazaarPrice(priceTable.bazaarFetchedAt)
+    ? priceTable.bazaarPrices : {};
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -83,6 +86,7 @@ export default function App() {
         onSave={(plan) => setWorkspace((previous) => ({
           ...previous, plans: { ...previous.plans, [plan.slayer]: plan },
         }))}
+        bazaarPrices={bazaarPrices}
         renderProfit={(plan, result) => <ProfitPanel key={plan.slayer + ":" + plan.tier}
           plan={plan} result={result} table={priceTable} bazaarEnabled={bazaarEnabled}
           time={completionTimes[plan.slayer]?.[plan.tier]}
