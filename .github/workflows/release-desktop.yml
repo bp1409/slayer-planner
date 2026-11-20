@@ -104,7 +104,7 @@ jobs:
           set -euo pipefail
           release_commit="$(gh api "repos/$GH_REPO/commits/refs/tags/$TAG" --jq '.sha')"
           test "$release_commit" = "$BUILD_COMMIT"
-          gh release upload "$TAG" installers/frontend/src-tauri/target/release/bundle/deb/*.deb installers/frontend/src-tauri/target/release/bundle/appimage/*.AppImage installers/linux-SHA256SUMS.txt
+          gh release upload --clobber "$TAG" installers/frontend/src-tauri/target/release/bundle/deb/*.deb installers/frontend/src-tauri/target/release/bundle/appimage/*.AppImage installers/linux-SHA256SUMS.txt
           gh release edit "$TAG" --notes-start "Built from commit $BUILD_COMMIT. Checksums and build attestations are included."
 
   build-macos:
@@ -113,7 +113,7 @@ jobs:
       matrix:
         include:
           - target: aarch64-apple-darwin
-            runner: macos-15
+            runner: macos-15-intel
           - target: x86_64-apple-darwin
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
@@ -191,7 +191,7 @@ jobs:
           set -euo pipefail
           release_commit="$(gh api "repos/$GH_REPO/commits/refs/tags/$TAG" --jq '.sha')"
           test "$release_commit" = "$(cat installers/build-commit.txt)"
-          gh release upload "$TAG" installers/frontend/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg installers/macos-${{ matrix.target }}-SHA256SUMS.txt
+          gh release upload --clobber "$TAG" installers/frontend/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg installers/macos-${{ matrix.target }}-SHA256SUMS.txt
 
   build-windows:
     runs-on: windows-latest
@@ -272,4 +272,4 @@ jobs:
           set -euo pipefail
           release_commit="$(gh api "repos/$GH_REPO/commits/refs/tags/$TAG" --jq '.sha')"
           test "$release_commit" = "$(cat installers/build-commit.txt)"
-          gh release upload "$TAG" installers/frontend/src-tauri/target/release/bundle/msi/*.msi installers/frontend/src-tauri/target/release/bundle/nsis/*.exe installers/windows-SHA256SUMS.txt
+          gh release upload --clobber "$TAG" installers/frontend/src-tauri/target/release/bundle/msi/*.msi installers/frontend/src-tauri/target/release/bundle/nsis/*.exe installers/windows-SHA256SUMS.txt
