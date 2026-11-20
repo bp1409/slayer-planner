@@ -27,7 +27,14 @@ The web version is static and works offline after its first load. Production des
 
 The macOS app is unsigned. If Gatekeeper blocks it, Control-click the app in Finder, choose **Open**, then confirm **Open**. You may need to repeat this after downloading a newer build.
 
-Updater signing is not configured in this repository yet. Before publishing updater-enabled builds, generate a Tauri updater key pair locally, keep the private key and password in GitHub Actions secrets, put only the public key in `frontend/src-tauri/tauri.conf.json`, and publish the signed `latest.json` plus matching assets. The updater setting is off by default.
+Automatic updates are intentionally disabled. A future updater must be designed, signed and tested end-to-end before it is added.
+
+## Release checklist
+
+- Enable GitHub Pages with **Source: GitHub Actions** if it is not already enabled.
+- Paste the entries from [`TOPICS.txt`](TOPICS.txt) into the repository topic settings.
+- Do not add update endpoints or keys until signed update support has passed an independent release review.
+- Push the `v1.1.0` tag, then run the desktop release workflow for that tag.
 
 ## Release checklist
 

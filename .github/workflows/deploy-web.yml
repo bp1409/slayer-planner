@@ -1,61 +1,40 @@
-name: Deploy web version
+name: Deploy production web version
 
 on:
   push:
     tags: ["v*.*.*"]
-    branches: [dev]
+
+permissions:
+  contents: read
 
 concurrency:
-  group: pages
+  group: pages-production
   cancel-in-progress: false
 
 jobs:
   build:
-    permissions:
-      contents: read
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ startsWith(github.ref, 'refs/tags/') && github.ref || 'main' }}
-          path: main
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: dev
-          path: dev
-          persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            main/frontend/package-lock.json
-            dev/frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-        working-directory: main/frontend
+        working-directory: frontend
       - run: npm test
-        working-directory: main/frontend
+        working-directory: frontend
       - run: npm run build
-        working-directory: main/frontend
+        working-directory: frontend
         env:
           PAGES_BASE: "/slayer-planner/"
-      - run: npm ci
-        working-directory: dev/frontend
-      - run: npm test
-        working-directory: dev/frontend
-      - run: npm run build
-        working-directory: dev/frontend
-        env:
-          PAGES_BASE: "/slayer-planner/dev/"
-      - name: Add dev preview to Pages artifact
-        run: |
-          rm -rf main/frontend/dist/dev
-          mkdir -p main/frontend/dist/dev
-          cp -R dev/frontend/dist/. main/frontend/dist/dev/
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
-          path: main/frontend/dist
+          path: frontend/dist
   deploy:
     needs: build
     permissions:
@@ -67,4 +46,4 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

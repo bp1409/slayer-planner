@@ -26,6 +26,15 @@ export function sanitizeEvent(event: Sentry.ErrorEvent) {
   delete safe.breadcrumbs;
   delete safe.extra;
   delete safe.contexts;
+  delete safe.tags;
+  delete safe.modules;
+  delete safe.transaction;
+  delete safe.fingerprint;
+  delete safe.sdk;
+  delete safe.release;
+  delete safe.environment;
+  delete safe.server_name;
+  delete safe.debug_meta;
   if (safe.message) safe.message = redactSensitiveText(safe.message);
   if (safe.exception?.values) {
     safe.exception = {
@@ -36,9 +45,10 @@ export function sanitizeEvent(event: Sentry.ErrorEvent) {
         stacktrace: value.stacktrace ? {
           ...value.stacktrace,
           frames: value.stacktrace.frames?.map((frame) => ({
-            ...frame,
             filename: frame.filename ? redactSensitiveText(frame.filename) : frame.filename,
             function: frame.function ? redactSensitiveText(frame.function) : frame.function,
+            lineno: frame.lineno,
+            colno: frame.colno,
           })),
         } : value.stacktrace,
       })),
