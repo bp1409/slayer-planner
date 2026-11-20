@@ -1,9 +1,9 @@
 # Slayer Planner — Full Pre-Publication Security Audit
 
-Audit date: 2026-11-20  
-Repository: `bp1409/slayer-planner`  
-Audited checkout: `feature/dev-pages` at `17f5df2`  
-Default branch observed remotely: `main` at `ae562cd`  
+Audit date: 2026-11-20
+Repository: `bp1409/slayer-planner`
+Audited checkout: `feature/dev-pages` at `17f5df2`
+Default branch observed remotely: `main` at `ae562cd`
 Published release observed: `v1.2.0` at tag commit `18b0cf6`
 
 ## Executive summary
