@@ -10,6 +10,7 @@ More views: [future-tier estimate](docs/screenshots/planner-future-tier.png), [l
 
 - [Download the latest desktop release](https://github.com/bp1409/slayer-planner/releases/latest)
 - [Open the web version](https://bp1409.github.io/slayer-planner/)
+- [Open the dev web preview](https://bp1409.github.io/slayer-planner/dev/)
 
 The web version is static and works offline after its first load. Production desktop builds block WebView network requests. Plans, preferences, and the last valid workspace are stored locally.
 
