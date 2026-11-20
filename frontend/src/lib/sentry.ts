@@ -26,7 +26,7 @@ export function setEnabled(value: boolean) {
     initSentry();
   } else if (initialized) {
     initialized = false;
-    void Sentry.close(2000);
+    void Sentry.close(0);
   }
 }
 export async function sendReport(message: string) {
