@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from "react";
+export { parseDecimal } from "../../lib/parse";
 
 export function NumberField({ label, unit, value, onChange, error }: {
   label: ReactNode; unit: string; value: string; onChange: (value: string) => void; error?: string;
@@ -16,7 +17,3 @@ export function NumberField({ label, unit, value, onChange, error }: {
   </div>;
 }
 
-export function parseDecimal(value: string) {
-  const text = value.trim();
-  return /^(?:\d+(?:[.,]\d{0,2})?|[.,]\d{1,2})$/.test(text) ? Number(text.replace(",", ".")) : NaN;
-}

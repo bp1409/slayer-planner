@@ -89,3 +89,4 @@ test("bug reports contain only safe diagnostic fields", () => {
   assert.match(report, /Reproduction steps:/);
   assert.doesNotMatch(report, /localStorage|api-key|password/);
 });
+// @ts-nocheck

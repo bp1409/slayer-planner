@@ -2,12 +2,13 @@
   "name": "slayer-planner",
   "private": true,
   "version": "1.1.0",
+  "engines": { "node": ">=22.18" },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc -b",
     "build": "npm run typecheck && vite build && node scripts/generate-sw.mjs",
-    "test": "node --test tests/calculator.test.ts tests/sharing.test.ts tests/updater-config.test.ts tests/profit.test.ts tests/bazaar.test.ts",
+    "test": "node --test tests/calculator.test.ts tests/sharing.test.ts tests/updater-config.test.ts tests/profit.test.ts tests/bazaar.test.ts tests/parse.test.ts",
     "test:e2e": "playwright test",
     "preview": "vite preview",
     "tauri:dev": "tauri dev",
@@ -25,6 +26,7 @@
     "@tauri-apps/cli": "2.12.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/node": "^22.15.0",
     "@vitejs/plugin-react": "6.3.0",
     "typescript": "7.0.2",
     "vite": "8.3.8"

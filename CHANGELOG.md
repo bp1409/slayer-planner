@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Hardened web base-path and service-worker behavior across Pages and desktop builds.
+- Centralized Tauri detection and expanded offline profit-planning tools.
+
 ## 1.1.0
 
 - Added a GitHub Pages-ready static web build with a PWA manifest, versioned offline service worker, and tag-triggered deployment.

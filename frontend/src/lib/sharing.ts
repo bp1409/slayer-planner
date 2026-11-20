@@ -1,5 +1,6 @@
-import { isSlayerId, slayers } from "../data/slayers.ts";
+import { isSlayerId, slayers, tierLabels } from "../data/slayers.ts";
 import { calculatePlan, type PlanInputs } from "./calculator.ts";
+import { formatNumber, formatTime } from "./formatting.ts";
 
 export const SHARE_VERSION = 1 as const;
 export type SharedPlan = { v: typeof SHARE_VERSION; plan: PlanInputs };
@@ -53,4 +54,17 @@ export function decodePlan(text: string): PlanInputs {
   if (text.length > 10_000) throw new Error("Plan JSON is too large.");
   try { return validateSharedPlan(JSON.parse(text) as unknown); }
   catch (error) { if (error instanceof SyntaxError) throw new Error("Plan JSON is malformed."); throw error; }
+}
+
+export function planSummary(plan: PlanInputs) {
+  const result = calculatePlan(plan, true);
+  if (!result.ok) return "The current draft is incomplete; save a valid plan before copying a summary.";
+  const access = result.assumesAccess ? "\nFuture estimate - assumes access" : "";
+  return [
+    `Slayer Planner — ${slayers[plan.slayer].label} Tier ${tierLabels[plan.tier - 1]}`,
+    `Target: level ${plan.targetLevel} (${formatNumber(result.remainingXp)} XP to go)`,
+    `Bosses: ${formatNumber(result.bosses)} · Time: ${formatTime(result.timeSeconds, "units")} · Cost: ${formatNumber(result.cost)} ${result.currency}`,
+    `Inputs: ${formatNumber(plan.currentXp)} XP · ${formatTime(plan.secondsPerBoss, "units")} per boss`,
+    `Modifiers: ${[plan.aatroxXp && "Aatrox XP Buff", plan.slashedPricing && "Slashed Pricing"].filter(Boolean).join(", ") || "None"}${access}`,
+  ].join("\n");
 }

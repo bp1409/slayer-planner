@@ -39,3 +39,4 @@ test("rejects stale or future Bazaar snapshots", () => {
   assert.equal(isFreshBazaarPrice(new Date(now - bazaarPriceMaxAgeMs - 1).toISOString(), now), false);
   assert.equal(isFreshBazaarPrice(new Date(now + 1).toISOString(), now), false);
 });
+// @ts-nocheck
