@@ -3,6 +3,7 @@ import { NumberField, parseDecimal } from "./components/ui/NumberField";
 import { tierLabels } from "./data/slayers";
 import { isDecimalInRange, maxSeconds } from "./lib/calculator";
 import { defaults, type Preferences } from "./lib/preferences";
+import { isTauri } from "./lib/platform";
 
 export function PlannerSettings({ preferences, onChange }: {
   preferences: Preferences; onChange: (preferences: Preferences) => void;
