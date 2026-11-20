@@ -10,7 +10,6 @@ export type Preferences = {
   showMilestones: boolean;
   reduceMotion: boolean;
   allowFutureTiers: boolean;
-  allowUpdates: boolean;
   allowBazaar: boolean;
   defaultTarget: number;
   defaultTier: number;
@@ -19,7 +18,7 @@ export type Preferences = {
 
 export const defaults: Preferences = {
   theme: "dark", numberFormat: "full", timeFormat: "units", showMilestones: true,
-  reduceMotion: false, allowFutureTiers: false, allowUpdates: false, allowBazaar: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
+  reduceMotion: false, allowFutureTiers: false, allowBazaar: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
 };
 
 const preferencesKey = "slayer-planner-preferences";
@@ -56,7 +55,6 @@ export function loadPreferences(): Preferences {
     showMilestones: (saved.showMilestones ?? saved.showChart) !== false,
     reduceMotion: saved.reduceMotion === true,
     allowFutureTiers: saved.allowFutureTiers === true,
-    allowUpdates: saved.allowUpdates === true,
     allowBazaar: saved.allowBazaar === true,
     defaultTarget: integerPreference(saved.defaultTarget, 9, defaults.defaultTarget),
     defaultTier: integerPreference(saved.defaultTier, 5, defaults.defaultTier),

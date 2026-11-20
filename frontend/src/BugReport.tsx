@@ -28,12 +28,12 @@ export function BugReport() {
         <h2 className="bug-report__title">Help improve Slayer Planner</h2>
         <p className="bug-report__intro">Tell us what happened and we’ll send a focused report to help us investigate.</p>
       </div>
-      <p className="bug-report__privacy">Your description is sent after consent. Automatic diagnostics remove common emails, URLs, local paths and tokens; avoid pasting secrets. Saved plans and local storage are never included.</p>
+      <p className="bug-report__privacy">Your description is sent to Sentry only after consent. Diagnostics remove common emails, URLs, local paths and tokens; avoid pasting secrets. Saved plans and local storage are never included. Sentry may receive delivery metadata such as IP address.</p>
       <label className="bug-report__label" htmlFor="bug-steps">What happened?</label>
       <textarea id="bug-steps" value={steps} onChange={(event) => setSteps(event.currentTarget.value)} rows={7} placeholder="Steps to reproduce, what you expected, and what you saw…" />
       <label className="check-row bug-report__consent">
         <input type="checkbox" checked={consent} onChange={(event) => { setConsent(event.target.checked); setEnabled(event.target.checked); }} />
-        <span>Allow this report and future anonymous error reports to be sent</span>
+        <span>Allow this report and future error reports to be sent to Sentry</span>
       </label>
       <button type="button" className="button bug-report__submit" disabled={!consent || !steps.trim() || busy} onClick={() => void submit()}>
         {busy ? "Sending…" : "Send bug report"}
