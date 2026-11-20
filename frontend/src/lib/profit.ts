@@ -1,3 +1,5 @@
+import { bazaarProductIds as verifiedIds } from "./bazaar.ts";
+import type { calculatePlan, PlanInputs } from "./calculator.ts";
 import { slayerIds, slayers, type SlayerId } from "../data/slayers.ts";
 import { slayerLoot } from "./loot.ts";
 
@@ -8,7 +10,8 @@ export type PriceTable = {
   bazaarPrices: Record<string, number>;
   bazaarFetchedAt: string | null;
 };
-export type ProfitRow = { slayer: SlayerId; tier: number; coinsPerBoss: number; coinsPerHour: number };
+export type SlayerComparison = { slayer: SlayerId; tier: number; xpPerHour: number | null; netCoinsPerHour: number | null; timeSeconds: number; incomplete: boolean };
+
 
 const priceTableKey = "slayer-planner-prices";
 const maxPrice = 1_000_000_000_000;
@@ -48,7 +51,7 @@ export function loadPriceTable(): PriceTable {
     if (candidate.bazaarPrices && typeof candidate.bazaarPrices === "object" && !Array.isArray(candidate.bazaarPrices)) {
       for (const item of lootItems()) {
         const value = (candidate.bazaarPrices as Record<string, unknown>)[item];
-        if (validPrice(value)) bazaarPrices[item] = value;
+        if (bazaarProductIds[item] === verifiedIds[item] && verifiedIds[item] && validPrice(value)) bazaarPrices[item] = value;
       }
     }
     return {
@@ -60,7 +63,11 @@ export function loadPriceTable(): PriceTable {
 }
 
 export function savePriceTable(table: PriceTable) {
-  localStorage.setItem(priceTableKey, JSON.stringify(table));
+  try {
+    localStorage.setItem(priceTableKey, JSON.stringify(table));
+  } catch {
+    // Keep session pricing available when storage is blocked.
+  }
 }
 
 function averageAmount(amount: string) {
@@ -68,19 +75,59 @@ function averageAmount(amount: string) {
   return values.length === 2 ? (values[0] + values[1]) / 2 : values[0];
 }
 
-export function expectedCoinsPerBoss(boss: keyof typeof slayerLoot, tier: number, prices: Record<string, number>) {
-  const drops = slayerLoot[boss].tiers[tier - 1];
-  if (!drops) return 0;
-  return drops.reduce((total, [item, chancePercent, amount]) => total + chancePercent / 100 * averageAmount(amount) * (prices[item] ?? 0), 0);
+export function estimateLoot(slayer: SlayerId, tier: number, currentLevel: number, prices: Record<string, number>) {
+  const drops = slayerLoot[slayers[slayer].boss].tiers[tier - 1] ?? [];
+  const missing: string[] = [];
+  let coins = 0;
+  let priced = 0;
+  let uncertainUnlock = false;
+  for (const [item, chance, amount, requiredLevel] of drops) {
+    // GAME-DATA.md records conflicting level 3 / level 4 requirements for this row.
+    if (slayer === "vampire" && tier === 2 && item === "Fang-tastic Chocolate Chip" && currentLevel === 3) {
+      uncertainUnlock = true;
+      continue;
+    }
+    if (requiredLevel !== undefined && currentLevel < requiredLevel) continue;
+    const price = prices[item];
+    if (validPrice(price)) {
+      priced++;
+      coins += chance / 100 * averageAmount(amount) * price;
+    } else {
+      missing.push(item);
+    }
+  }
+  return { coins, missing, priced, uncertainUnlock };
 }
 
-export function coinsPerHour(coinsPerBoss: number, secondsPerBoss: number) {
-  return secondsPerBoss > 0 ? coinsPerBoss * 3_600 / secondsPerBoss : 0;
+export function coinsPerHour(valuePerBoss: number, secondsPerBoss: number) {
+  return Number.isFinite(secondsPerBoss) && secondsPerBoss > 0 ? valuePerBoss * 3_600 / secondsPerBoss : null;
 }
 
-export function profitRows(secondsPerBoss: number, prices: Record<string, number>): ProfitRow[] {
+export function estimateProfit(
+  plan: Pick<PlanInputs, "slayer" | "tier">,
+  result: Extract<ReturnType<typeof calculatePlan>, { ok: true }>,
+  secondsPerBoss: number,
+  prices: Record<string, number>,
+) {
+  const loot = estimateLoot(plan.slayer, plan.tier, result.currentLevel, prices);
+  // Riftstalker drops 1,000 Motes per quest (see GAME-DATA.md). Keep the two currencies separate.
+  const grossPerBoss = result.currency === "motes" ? 1_000 : loot.coins;
+  const netPerBoss = grossPerBoss - result.feePerBoss;
+  return {
+    loot, grossPerBoss, netPerBoss,
+    grossPerHour: coinsPerHour(grossPerBoss, secondsPerBoss),
+    netPerHour: coinsPerHour(netPerBoss, secondsPerBoss),
+    totalNet: result.bosses * netPerBoss,
+  };
+}
+
+export function compareSlayers(secondsBySlayer: Partial<Record<SlayerId, number>>, prices: Record<string, number>): SlayerComparison[] {
   return slayerIds.flatMap((slayer) => slayers[slayer].tiers.map((_, index) => {
-    const coins = expectedCoinsPerBoss(slayers[slayer].boss, index + 1, prices);
-    return { slayer, tier: index + 1, coinsPerBoss: coins, coinsPerHour: coinsPerHour(coins, secondsPerBoss) };
+    const seconds = secondsBySlayer[slayer] ?? 0;
+    const loot = estimateLoot(slayer, index + 1, slayers[slayer].thresholds.length, prices);
+    const fee = slayers[slayer].tiers[index][1];
+    const net = coinsPerHour(loot.coins - fee, seconds);
+    const xp = coinsPerHour(slayers[slayer].tiers[index][0], seconds);
+    return { slayer, tier: index + 1, xpPerHour: xp, netCoinsPerHour: net, timeSeconds: seconds, incomplete: loot.missing.length > 0 };
   }));
 }

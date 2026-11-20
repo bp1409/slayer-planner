@@ -38,10 +38,7 @@ export function PlannerSettings({ preferences, onChange }: {
         <input type="checkbox" checked={preferences.reduceMotion}
           onChange={(event) => onChange({ ...preferences, reduceMotion: event.currentTarget.checked })} />
       </label>
-      <label className="preference-row">Check for updates
-        <input type="checkbox" checked={preferences.allowUpdates}
-          onChange={(event) => onChange({ ...preferences, allowUpdates: event.currentTarget.checked })} />
-      </label>
+      <p className="field-note">Signed update checks are unavailable until the release signing key is configured.</p>
       <label className="preference-row">Enable Bazaar Pricing (web only)
         <input type="checkbox" checked={preferences.allowBazaar}
           onChange={(event) => onChange({ ...preferences, allowBazaar: event.currentTarget.checked })} />

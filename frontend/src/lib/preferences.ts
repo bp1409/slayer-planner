@@ -1,4 +1,4 @@
-import { isSlayerId, slayers, type SlayerId } from "../data/slayers.ts";
+import { isSlayerId, slayerIds, slayers, type SlayerId } from "../data/slayers.ts";
 import { calculatePlan, isDecimalInRange, maxSeconds, type PlanInputs } from "./calculator.ts";
 import type { NumberFormat, TimeFormat } from "./formatting.ts";
 
@@ -102,3 +102,32 @@ export function loadWorkspace(): Workspace {
 }
 
 export const saveWorkspace = (workspace: Workspace) => write(workspaceKey, workspace);
+
+export type CompletionTime = { spawn: number; kill: number };
+export type CompletionTimes = Partial<Record<SlayerId, Partial<Record<number, CompletionTime>>>>;
+
+const completionTimesKey = "slayer-planner-completion-times";
+
+export function isCompletionTime(value: unknown): value is CompletionTime {
+  if (!value || typeof value !== "object") return false;
+  const { spawn, kill } = value as Partial<CompletionTime>;
+  return typeof spawn === "number" && typeof kill === "number" &&
+    isDecimalInRange(spawn, 0, maxSeconds) && isDecimalInRange(kill, 0, maxSeconds);
+}
+
+export function loadCompletionTimes(): CompletionTimes {
+  const saved = read(completionTimesKey);
+  const times: CompletionTimes = {};
+  for (const id of slayerIds) {
+    const tiers = saved[id];
+    if (!tiers || typeof tiers !== "object") continue;
+    slayers[id].tiers.forEach((_, index) => {
+      const tier = index + 1;
+      const value = (tiers as Record<number, unknown>)[tier];
+      if (isCompletionTime(value)) (times[id] ??= {})[tier] = value;
+    });
+  }
+  return times;
+}
+
+export const saveCompletionTimes = (times: CompletionTimes) => write(completionTimesKey, times);
