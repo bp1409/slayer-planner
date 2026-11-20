@@ -4,7 +4,7 @@ import { Modal } from "./components/ui/Modal";
 import { Calculator } from "./components/calculator/Calculator";
 import { PlannerHelp } from "./PlannerHelp";
 import { PlannerSettings } from "./PlannerSettings";
-import { loadPreferences, loadWorkspace, newPlan, savePreferences, saveWorkspace } from "./lib/preferences";
+import { loadCompletionTimes, loadPreferences, loadWorkspace, newPlan, saveCompletionTimes, savePreferences, saveWorkspace } from "./lib/preferences";
 import { slayers } from "./data/slayers";
 import { GAME_DATA_VERIFIED_DATE } from "./data/gameData";
 import { checkForUpdates } from "./lib/updater";
@@ -24,6 +24,7 @@ export default function App() {
   const [preferences, setPreferences] = useState(loadPreferences);
   const [workspace, setWorkspace] = useState(loadWorkspace);
   const [priceTable, setPriceTable] = useState<PriceTable>(loadPriceTable);
+  const [completionTimes, setCompletionTimes] = useState(loadCompletionTimes);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const systemDark = useSyncExternalStore(subscribeToTheme, () => systemTheme.matches);
   const theme = preferences.theme === "system" ? (systemDark ? "dark" : "light") : preferences.theme;
@@ -37,6 +38,7 @@ export default function App() {
   }, [theme, preferences.reduceMotion]);
   useEffect(() => savePreferences(preferences), [preferences]);
   useEffect(() => saveWorkspace(workspace), [workspace]);
+  useEffect(() => saveCompletionTimes(completionTimes), [completionTimes]);
   useEffect(() => savePriceTable(priceTable), [priceTable]);
   useEffect(() => {
     if (!preferences.allowUpdates) return;
@@ -60,13 +62,9 @@ export default function App() {
         <Modal title="Settings" icon={<Settings size={18} aria-hidden="true" />}>
           <PlannerSettings preferences={preferences} onChange={setPreferences} />
         </Modal>
-        {bazaarEnabled ? <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
-          <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled />
-        </Modal> : <span className="disabled-action" title="Enable Bazaar Pricing to Refresh">
-          <button type="button" className="icon-button" aria-label="Profit (enable Bazaar Pricing to refresh)" disabled>
-            <CircleDollarSign size={18} aria-hidden="true" />
-          </button>
-        </span>}
+        <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
+          <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled={bazaarEnabled} />
+        </Modal>
         <Modal title="Share plan" icon={<Share2 size={18} aria-hidden="true" />}>
           <SharePlan plan={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)} onImport={(plan) => {
             setWorkspace((previous) => ({ ...previous, slayer: plan.slayer, plans: { ...previous.plans, [plan.slayer]: plan } }));
@@ -85,8 +83,13 @@ export default function App() {
         preferences={preferences} onSlayerChange={(slayer) => setWorkspace((previous) => ({ ...previous, slayer }))}
         onSave={(plan) => setWorkspace((previous) => ({
           ...previous, plans: { ...previous.plans, [plan.slayer]: plan },
-        }))} />
-      <ProfitPanel secondsPerBoss={workspace.plans[workspace.slayer]?.secondsPerBoss ?? preferences.defaultSeconds} table={priceTable} />
+        }))}
+        renderProfit={(plan, result) => <ProfitPanel key={plan.slayer + ":" + plan.tier}
+          plan={plan} result={result} table={priceTable} bazaarEnabled={bazaarEnabled}
+          time={completionTimes[plan.slayer]?.[plan.tier]}
+          onTimeChange={(time) => setCompletionTimes((previous) => ({
+            ...previous, [plan.slayer]: { ...previous[plan.slayer], [plan.tier]: time },
+          }))} />} />
     </main>
   </>;
 }

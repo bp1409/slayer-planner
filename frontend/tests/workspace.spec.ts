@@ -220,20 +220,16 @@ test("a second visit works offline after the service worker precache", async ({ 
   await page.context().setOffline(false);
 });
 
-test("local prices update the approximate coins-per-hour table", async ({ page }) => {
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
-  const settings = page.getByRole("dialog", { name: "Settings" });
-  await settings.getByLabel("Enable Bazaar Pricing (web only)").check();
-  await page.keyboard.press("Escape");
+test("local prices are editable offline and update the selected profit estimate", async ({ page }) => {
   await page.getByRole("button", { name: "Profit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Profit" });
-  await expect(dialog).toContainText("Approximate local prices only");
+  await expect(dialog.getByRole("button", { name: "Refresh Bazaar prices" })).toHaveCount(0);
   await dialog.getByLabel("Price for Revenant Flesh").fill("10");
   await expect(dialog.getByRole("status")).toHaveText("Prices saved locally.");
   await page.keyboard.press("Escape");
-  const zombieTierOne = page.locator(".profit-table tbody tr").filter({ hasText: "Zombie" }).first();
-  await expect(zombieTierOne).toContainText("15");
-  await expect(zombieTierOne).toContainText("900");
+  await expect(page.getByRole("row", { name: /Expected item loot/ })).toContainText("15 coins");
+  await expect(page.getByRole("row", { name: /Gross \/ hour/ })).toContainText("900 coins");
+  await expect(page.locator(".profit-panel")).toContainText("1 of 2 eligible drops priced");
 });
 
 test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page }) => {
@@ -253,11 +249,5 @@ test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page })
   await dialog.getByRole("button", { name: "Refresh Bazaar prices" }).click();
   await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
   await page.keyboard.press("Escape");
-  await expect(page.locator(".profit-panel .metadata")).toHaveText("Bazaar sell prices");
-});
-
-test("Bazaar button is disabled with an opt-in tooltip", async ({ page }) => {
-  const profit = page.getByRole("button", { name: /Profit \(enable Bazaar Pricing to refresh\)/ });
-  await expect(profit).toBeDisabled();
-  await expect(profit.locator(".." )).toHaveAttribute("title", "Enable Bazaar Pricing to Refresh");
+  await expect(page.locator(".profit-panel .metadata")).toHaveText("Local and Bazaar pricing");
 });
