@@ -21,8 +21,3 @@ export function sendReport(message: string) {
   initSentry();
   Sentry.captureMessage(message.slice(0, 4000), "error");
 }
-export function sendTestException() {
-  if (!enabled()) throw new Error("Consent required");
-  initSentry();
-  Sentry.captureException(new Error("Sentry test from Slayer Planner"));
-}

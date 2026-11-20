@@ -1,27 +1,39 @@
 import { useState } from "react";
 import { createBugReport } from "./lib/bugReport";
-import { enabled, sendReport, sendTestException, setEnabled } from "./lib/sentry";
+import { enabled, sendReport, setEnabled } from "./lib/sentry";
+
 export function BugReport() {
-  const [steps,setSteps] = useState("");
-  const [consent,setConsent] = useState(enabled);
-  const [status,setStatus] = useState("");
-  const [busy,setBusy] = useState(false);
+  const [steps, setSteps] = useState("");
+  const [consent, setConsent] = useState(enabled);
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
   const report = createBugReport(steps);
+
   async function submit() {
-    setBusy(true); setStatus("");
+    setBusy(true);
+    setStatus("");
     try { await sendReport(report); setStatus("Report uploaded to Sentry."); }
-    catch(e) { setStatus(e instanceof Error ? e.message : "Upload failed"); }
+    catch (error) { setStatus(error instanceof Error ? error.message : "Upload failed. Please try again."); }
     finally { setBusy(false); }
   }
-  return <div>
-    <p className="field-note">Reports include the displayed text, app version and platform, but not saved plans or credentials. Internet is required.</p>
-    <label htmlFor="bug-steps">Reproduction steps</label>
-    <textarea id="bug-steps" value={steps} onChange={e=>setSteps(e.currentTarget.value)} rows={6}/>
-    <label><input type="checkbox" checked={consent} onChange={e=>{setConsent(e.target.checked);setEnabled(e.target.checked);}}/> Allow Sentry uploads and future uncaught error reporting</label>
-    <button type="button" className="button" disabled={!consent || !steps.trim() || busy} onClick={()=>void submit()}>{busy?"Sending…":"Send bug report"}</button>{" "}
-    <button type="button" className="button" onClick={()=>void navigator.clipboard.writeText(report).then(()=>setStatus("Copied")).catch(()=>setStatus("Clipboard unavailable"))}>Copy bug report</button>
-    {import.meta.env.DEV && <button type="button" className="button" disabled={!consent} onClick={() => { try { sendTestException(); setStatus("Sentry test exception sent."); } catch { setStatus("Sentry consent is required."); } }}>Send Sentry test</button>}
-    {status && <p role="status" className="field-note">{status}</p>}
-    <pre className="field-note">{report}</pre>
-  </div>;
+
+  return (
+    <div className="bug-report">
+      <div>
+        <h2 className="bug-report__title">Help improve Slayer Planner</h2>
+        <p className="bug-report__intro">Tell us what happened and we’ll send a focused report to help us investigate.</p>
+      </div>
+      <p className="bug-report__privacy">Only your description, app version and platform are included. Saved plans, credentials, API keys and local storage are never sent.</p>
+      <label className="bug-report__label" htmlFor="bug-steps">What happened?</label>
+      <textarea id="bug-steps" value={steps} onChange={(event) => setSteps(event.currentTarget.value)} rows={7} placeholder="Steps to reproduce, what you expected, and what you saw…" />
+      <label className="check-row bug-report__consent">
+        <input type="checkbox" checked={consent} onChange={(event) => { setConsent(event.target.checked); setEnabled(event.target.checked); }} />
+        <span>Allow this report and future anonymous error reports to be sent</span>
+      </label>
+      <button type="button" className="button bug-report__submit" disabled={!consent || !steps.trim() || busy} onClick={() => void submit()}>
+        {busy ? "Sending…" : "Send bug report"}
+      </button>
+      {status && <p role="status" className="field-note bug-report__status">{status}</p>}
+    </div>
+  );
 }

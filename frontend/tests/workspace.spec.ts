@@ -103,6 +103,15 @@ test("shows the audited game-data date", async ({ page }) => {
   await expect(page.getByText(`Game data verified on ${GAME_DATA_VERIFIED_DATE}.`, { exact: false })).toBeVisible();
 });
 
+test("bug report modal has one consented send action", async ({ page }) => {
+  await page.getByRole("button", { name: "Bug report", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Bug report" });
+  await expect(dialog.getByLabel("What happened?", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Send bug report", exact: true })).toHaveCount(1);
+  await expect(dialog.getByRole("button", { name: "Copy bug report", exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Send Sentry test", exact: true })).toHaveCount(0);
+});
+
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("dialog", { name: "Settings" }).getByLabel("Theme").selectOption("system");
