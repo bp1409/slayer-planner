@@ -2,8 +2,36 @@
 
 ## Unreleased
 
-- Hardened web base-path and service-worker behavior across Pages and desktop builds.
-- Centralized Tauri detection and expanded offline profit-planning tools.
+## 1.2.0 — Public Beta
+
+**New Features**
+
+- Added opt-in Sentry bug reporting and anonymous frontend error capture with a privacy-filtered feedback flow.
+- Added verified web-only Bazaar pricing with local-price fallback and offline desktop protection.
+- Added expanded profit, progression, timing and locally persisted grinding-profile tools.
+
+**Improvements**
+
+- Improved offline caching, deployment previews, responsive dialogs, accessibility and workspace persistence.
+
+**Bug Fixes**
+
+- Fixed service-worker scope isolation, progression tier boundaries, profile switching and malformed input handling.
+
+**Security & Privacy**
+
+- Sentry requires consent, removes sensitive event fields and does not run Bazaar networking in the desktop build.
+
+**Platform Support**
+
+- CI release workflows cover Windows, Linux and macOS native bundles.
+
+**Known Limitations**
+
+- The existing v1.1.0 tag is already assigned to an older 1.0.0 commit; this beta therefore releases as v1.2.0.
+- Desktop Sentry delivery and installer signing/notarization require platform-specific verification and credentials.
+
+Comparison: https://github.com/bp1409/slayer-planner/compare/v1.0.0...v1.2.0
 
 ## 1.1.0
 
