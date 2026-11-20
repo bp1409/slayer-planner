@@ -29,20 +29,6 @@ The macOS app is unsigned. If Gatekeeper blocks it, Control-click the app in Fin
 
 Automatic updates are intentionally disabled. A future updater must be designed, signed and tested end-to-end before it is added.
 
-## Release checklist
-
-- Enable GitHub Pages with **Source: GitHub Actions** if it is not already enabled.
-- Paste the entries from [`TOPICS.txt`](TOPICS.txt) into the repository topic settings.
-- Do not add update endpoints or keys until signed update support has passed an independent release review.
-- Push the `v1.1.0` tag, then run the desktop release workflow for that tag.
-
-## Release checklist
-
-- Enable GitHub Pages with **Source: GitHub Actions** if it is not already enabled.
-- Paste the entries from [`TOPICS.txt`](TOPICS.txt) into the repository topic settings.
-- If using auto-update, generate the Tauri updater key pair and add the private key and password as repository secrets; never commit them.
-- Push the `v1.1.0` tag, then run the desktop release workflow for that tag.
-
 ## Contributing
 
 Use Node.js 22.18 or newer, then run `npm ci` and `npm run dev` in [`frontend/`](frontend/). Before opening a pull request, run `npm test`, `npm run typecheck`, `npm run build`, and `npm run test:e2e`. Preserve the offline desktop boundary, design tokens, keyboard accessibility, reduced-motion behavior, and calculator tests.
