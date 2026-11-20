@@ -40,14 +40,13 @@ jobs:
       - run: npm run build
         working-directory: main/frontend
         env:
-          GITHUB_ACTIONS: "true"
+          PAGES_BASE: "/slayer-planner/"
       - run: npm ci
         working-directory: dev/frontend
       - run: npm run build
         working-directory: dev/frontend
         env:
-          GITHUB_ACTIONS: "true"
-          VITE_DEPLOY_PATH: "/slayer-planner/dev/"
+          PAGES_BASE: "/slayer-planner/dev/"
       - name: Add dev preview to Pages artifact
         run: |
           rm -rf main/frontend/dist/dev

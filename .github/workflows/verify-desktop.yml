@@ -38,6 +38,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run tauri:build -- --no-bundle
+      - name: Reject Pages base path in desktop artifact
+        shell: bash
+        run: |
+          if grep -Fq "/slayer-planner/" dist/index.html; then
+            echo "Desktop build contains the GitHub Pages base path"
+            exit 1
+          fi
       - if: runner.os == 'Linux'
         run: npx playwright install --with-deps chromium
       - if: runner.os == 'Windows'
