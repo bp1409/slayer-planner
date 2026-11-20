@@ -281,21 +281,30 @@ test("local prices are editable offline and update the selected profit estimate"
 test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page }) => {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   const settings = page.getByRole("dialog", { name: "Settings" });
-  await expect(settings.getByLabel("Enable Bazaar Pricing (web only)")).not.toBeChecked();
-  await settings.getByLabel("Enable Bazaar Pricing (web only)").check();
+  await expect(settings.getByLabel("Enable live market pricing (web only)")).not.toBeChecked();
+  await settings.getByLabel("Enable live market pricing (web only)").check();
   await page.keyboard.press("Escape");
   await page.route("https://api.hypixel.net/v2/skyblock/bazaar", async (route) => route.fulfill({
     status: 200, contentType: "application/json", body: JSON.stringify({ products: {
       REVENANT_FLESH: { quick_status: { sellPrice: 10 } },
     } }),
   }));
+  await page.route("https://api.hypixel.net/v2/skyblock/auctions?page=*", async (route) => route.fulfill({
+    status: 200, contentType: "application/json", body: JSON.stringify({
+      success: true, totalPages: 1, lastUpdated: Date.now(), auctions: [
+        { item_name: "Matcha Dye", bin: true, starting_bid: 25, claimed: false, end: Date.now() + 60_000 },
+      ],
+    }),
+  }));
   await page.getByRole("button", { name: "Profit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Profit" });
   await expect(dialog.getByLabel("Bazaar product ID for Revenant Flesh")).toHaveCount(0);
-  await dialog.getByRole("button", { name: "Refresh Bazaar prices" }).click();
-  await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
+  await dialog.getByRole("button", { name: "Refresh market prices" }).click();
+  await expect(dialog.getByRole("status")).toContainText("Market prices refreshed");
   await page.keyboard.press("Escape");
-  await expect(page.locator(".profit-panel .metadata")).toHaveText("Local and Bazaar pricing");
+  await expect(page.locator(".profit-panel .metadata")).toHaveText("Local and Bazaar & Auction House pricing");
   await expect(page.getByRole("region", { name: "Loot reference" }).getByRole("row", { name: /Revenant Flesh/ })).toContainText("10 coins");
+  await expect(page.getByRole("region", { name: "Loot reference" }).getByRole("row", { name: /Matcha Dye/ })).toContainText("25 coins");
+  await expect(page.getByRole("region", { name: "Loot reference" }).getByRole("row", { name: /Matcha Dye/ })).toContainText("Auction House");
 });
 // @ts-nocheck

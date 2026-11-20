@@ -38,6 +38,8 @@ export default function App() {
   const bazaarEnabled = preferences.allowBazaar && !("__TAURI__" in window);
   const bazaarPrices = bazaarEnabled && priceTable.bazaarFetchedAt && isFreshBazaarPrice(priceTable.bazaarFetchedAt)
     ? priceTable.bazaarPrices : {};
+  const auctionPrices = bazaarEnabled && priceTable.auctionFetchedAt && isFreshBazaarPrice(priceTable.auctionFetchedAt)
+    ? priceTable.auctionPrices : {};
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -87,6 +89,7 @@ export default function App() {
           ...previous, plans: { ...previous.plans, [plan.slayer]: plan },
         }))}
         bazaarPrices={bazaarPrices}
+        auctionPrices={auctionPrices}
         renderProfit={(plan, result) => <ProfitPanel key={plan.slayer + ":" + plan.tier}
           plan={plan} result={result} table={priceTable} bazaarEnabled={bazaarEnabled}
           time={completionTimes[plan.slayer]?.[plan.tier]}

@@ -10,6 +10,8 @@ export type PriceTable = {
   bazaarProductIds: Record<string, string>;
   bazaarPrices: Record<string, number>;
   bazaarFetchedAt: string | null;
+  auctionPrices: Record<string, number>;
+  auctionFetchedAt: string | null;
 };
 export type SlayerComparison = { slayer: SlayerId; tier: number; xpPerHour: number | null; netCoinsPerHour: number | null; timeSeconds: number; incomplete: boolean };
 
@@ -22,7 +24,7 @@ export function lootItems() {
 }
 
 export function emptyPriceTable(): PriceTable {
-  return { prices: {}, lastEdited: null, bazaarProductIds: {}, bazaarPrices: {}, bazaarFetchedAt: null };
+  return { prices: {}, lastEdited: null, bazaarProductIds: {}, bazaarPrices: {}, bazaarFetchedAt: null, auctionPrices: {}, auctionFetchedAt: null };
 }
 
 function validPrice(value: unknown): value is number {
@@ -33,7 +35,7 @@ export function loadPriceTable(): PriceTable {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(priceTableKey) ?? "null");
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyPriceTable();
-    const candidate = parsed as { prices?: unknown; lastEdited?: unknown; bazaarProductIds?: unknown; bazaarPrices?: unknown; bazaarFetchedAt?: unknown };
+    const candidate = parsed as { prices?: unknown; lastEdited?: unknown; bazaarProductIds?: unknown; bazaarPrices?: unknown; bazaarFetchedAt?: unknown; auctionPrices?: unknown; auctionFetchedAt?: unknown };
     const prices: Record<string, number> = {};
     if (candidate.prices && typeof candidate.prices === "object" && !Array.isArray(candidate.prices)) {
       for (const item of lootItems()) {
@@ -57,10 +59,20 @@ export function loadPriceTable(): PriceTable {
     }
     const bazaarFetchedAt = typeof candidate.bazaarFetchedAt === "string" && isFreshBazaarPrice(candidate.bazaarFetchedAt)
       ? candidate.bazaarFetchedAt : null;
+    const auctionPrices: Record<string, number> = {};
+    if (candidate.auctionPrices && typeof candidate.auctionPrices === "object" && !Array.isArray(candidate.auctionPrices)) {
+      for (const item of lootItems()) {
+        const value = (candidate.auctionPrices as Record<string, unknown>)[item];
+        if (validPrice(value)) auctionPrices[item] = value;
+      }
+    }
+    const auctionFetchedAt = typeof candidate.auctionFetchedAt === "string" && isFreshBazaarPrice(candidate.auctionFetchedAt)
+      ? candidate.auctionFetchedAt : null;
     return {
       prices, bazaarProductIds, bazaarPrices: bazaarFetchedAt ? bazaarPrices : {},
       lastEdited: typeof candidate.lastEdited === "string" ? candidate.lastEdited : null,
       bazaarFetchedAt,
+      auctionPrices: auctionFetchedAt ? auctionPrices : {}, auctionFetchedAt,
     };
   } catch { return emptyPriceTable(); }
 }

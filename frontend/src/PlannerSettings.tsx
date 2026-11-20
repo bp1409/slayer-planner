@@ -39,11 +39,11 @@ export function PlannerSettings({ preferences, onChange }: {
         <input type="checkbox" checked={preferences.reduceMotion}
           onChange={(event) => onChange({ ...preferences, reduceMotion: event.currentTarget.checked })} />
       </label>
-      <label className="preference-row">Enable Bazaar Pricing (web only)
+      <label className="preference-row">Enable live market pricing (web only)
         <input type="checkbox" checked={preferences.allowBazaar} disabled={isTauri()}
           onChange={(event) => onChange({ ...preferences, allowBazaar: event.currentTarget.checked })} />
       </label>
-      <p className="field-note">When enabled, the web app may refresh approximate Bazaar prices. The offline desktop app never connects.</p>
+      <p className="field-note">When enabled, the web app may refresh approximate Bazaar and Auction House prices. The offline desktop app never connects.</p>
     </section>
     <section>
       <h3>Calculator defaults</h3>

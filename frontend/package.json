@@ -10,7 +10,7 @@
     "dev": "vite",
     "typecheck": "tsc -b",
     "build": "npm run typecheck && vite build && node scripts/generate-sw.mjs",
-    "test": "node --test tests/calculator.test.ts tests/sharing.test.ts tests/updater-config.test.ts tests/profit.test.ts tests/bazaar.test.ts tests/parse.test.ts tests/sentry.test.ts",
+    "test": "node --test tests/calculator.test.ts tests/sharing.test.ts tests/updater-config.test.ts tests/profit.test.ts tests/bazaar.test.ts tests/auction.test.ts tests/parse.test.ts tests/sentry.test.ts",
     "test:e2e": "playwright test",
     "preview": "vite preview",
     "tauri:dev": "tauri dev",

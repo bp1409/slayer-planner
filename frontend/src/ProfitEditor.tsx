@@ -2,6 +2,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import { formatNumber } from "./lib/formatting";
 import { lootItems, type PriceTable } from "./lib/profit";
 import { bazaarProductIds, fetchBazaarPrices } from "./lib/bazaar";
+import { fetchAuctionPrices } from "./lib/auction";
 
 export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceTable; onChange: Dispatch<SetStateAction<PriceTable>>; bazaarEnabled: boolean }) {
   const { prices } = table;
@@ -23,22 +24,38 @@ export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceT
     setRefreshing(true);
     setMessage("");
     try {
-      const snapshot = await fetchBazaarPrices(bazaarProductIds);
-      const bazaarPrices = Object.fromEntries(Object.entries(snapshot.prices).map(([item, value]) => [item, value.sellPrice]));
-      onChange((previous) => ({ ...previous, bazaarProductIds, bazaarPrices, bazaarFetchedAt: snapshot.fetchedAt }));
-      setMessage(`Bazaar prices refreshed for ${Object.keys(bazaarPrices).length} mapped item(s).`);
+      const [bazaarResult, auctionResult] = await Promise.allSettled([
+        fetchBazaarPrices(bazaarProductIds), fetchAuctionPrices(lootItems()),
+      ]);
+      if (bazaarResult.status === "rejected" && auctionResult.status === "rejected") {
+        throw new Error("Bazaar and Auction House prices could not be refreshed.");
+      }
+      const bazaarPrices = bazaarResult.status === "fulfilled"
+        ? Object.fromEntries(Object.entries(bazaarResult.value.prices).map(([item, value]) => [item, value.sellPrice])) : undefined;
+      const auctionPrices = auctionResult.status === "fulfilled"
+        ? Object.fromEntries(Object.entries(auctionResult.value.prices).map(([item, value]) => [item, value.price])) : undefined;
+      onChange((previous) => ({
+        ...previous,
+        ...(bazaarResult.status === "fulfilled" ? { bazaarProductIds, bazaarPrices, bazaarFetchedAt: bazaarResult.value.fetchedAt } : {}),
+        ...(auctionResult.status === "fulfilled" ? { auctionPrices, auctionFetchedAt: auctionResult.value.fetchedAt } : {}),
+      }));
+      const details = [
+        bazaarPrices && `${Object.keys(bazaarPrices).length} Bazaar`,
+        auctionPrices && `${Object.keys(auctionPrices).length} Auction House`,
+      ].filter(Boolean).join(" and ");
+      setMessage(`Market prices refreshed: ${details}.`);
     } catch (error) {
       setMessage((error instanceof Error ? error.message : "Bazaar refresh failed.") + " Saved prices are still available.");
     } finally { setRefreshing(false); }
   }
   return <div className="price-editor">
-    <p className="field-note">Enter a local price per item. Leave it blank to use a Bazaar price when available. Enter 0 for a drop you value at zero.</p>
+    <p className="field-note">Enter a local price per item. Local prices take priority, followed by Bazaar and Auction House estimates.</p>
     <p className="field-note">Last edited: {table.lastEdited ?? "Never"}</p>
     {bazaarEnabled && <section className="bazaar-editor" aria-labelledby="bazaar-title">
-      <h3 id="bazaar-title">Optional Bazaar refresh</h3>
-      <p className="field-note">Bazaar sell prices are available for verified product IDs. Your local prices take precedence. No plan data is sent.</p>
+      <h3 id="bazaar-title">Optional market refresh</h3>
+      <p className="field-note">Refreshes verified Bazaar prices and lowest active Auction House BIN estimates. No plan data is sent.</p>
       <button type="button" className="button" disabled={refreshing} onClick={() => void refreshBazaar()}>
-        {refreshing ? "Refreshing Bazaar…" : "Refresh Bazaar prices"}
+        {refreshing ? "Refreshing market prices…" : "Refresh market prices"}
       </button>
       {table.bazaarFetchedAt && <p className="field-note">Last Bazaar refresh: {new Date(table.bazaarFetchedAt).toLocaleString()}</p>}
     </section>}

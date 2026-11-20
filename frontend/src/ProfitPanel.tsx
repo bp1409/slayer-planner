@@ -29,9 +29,13 @@ export function ProfitPanel({ plan, result, time, onTimeChange, table, bazaarEna
   const completionTime = { spawn: parseTime(spawn), kill: parseTime(kill) };
   const valid = isCompletionTime(completionTime);
   const seconds = valid ? completionTime.spawn + completionTime.kill : NaN;
-  const cached = bazaarEnabled && table.bazaarFetchedAt && isFreshBazaarPrice(table.bazaarFetchedAt)
+  const bazaar = bazaarEnabled && table.bazaarFetchedAt && isFreshBazaarPrice(table.bazaarFetchedAt)
     ? table.bazaarPrices : {};
+  const auction = bazaarEnabled && table.auctionFetchedAt && isFreshBazaarPrice(table.auctionFetchedAt)
+    ? table.auctionPrices : {};
+  const cached = { ...auction, ...bazaar };
   const prices = { ...cached, ...table.prices };
+  const marketSources = [Object.keys(bazaar).length && "Bazaar", Object.keys(auction).length && "Auction House"].filter(Boolean).join(" & ");
 
   function update(field: keyof CompletionTime, raw: string) {
     setDraft((previous) => ({ ...previous, [field]: raw }));
@@ -44,8 +48,8 @@ export function ProfitPanel({ plan, result, time, onTimeChange, table, bazaarEna
   const unit = rift ? "Motes" : "coins";
   return <section className="profit-panel" aria-labelledby="profit-title">
     <header className="section-header"><h2 id="profit-title">Expected profit</h2>
-      <span className="metadata">{Object.keys(cached).length ? "Local and Bazaar pricing" : "Local prices"}</span></header>
-    {bazaarEnabled && table.bazaarFetchedAt && !Object.keys(cached).length && <p className="field-note">Bazaar prices are unavailable or stale. Refresh them or use local prices.</p>}
+      <span className="metadata">{marketSources ? `Local and ${marketSources} pricing` : "Local prices"}</span></header>
+    {bazaarEnabled && (table.bazaarFetchedAt || table.auctionFetchedAt) && !Object.keys(cached).length && <p className="field-note">Market prices are unavailable or stale. Refresh them or use local prices.</p>}
     {tierLabels[plan.tier - 1] && <>
       <div className="fields profit-times">
         <NumberField label="Spawn time" unit="s" value={spawn} onChange={(raw) => update("spawn", raw)} />

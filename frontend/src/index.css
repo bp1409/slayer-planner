@@ -143,6 +143,8 @@ progress::-moz-progress-bar { background: var(--accent-fill); }
 .loot td, .loot thead th:nth-child(n+2) { text-align: end; font-variant-numeric: tabular-nums; }
 .loot thead th:nth-child(2), .loot tbody td:nth-child(2) { min-width: 8.5rem; }
 .loot-price { color: var(--accent); white-space: nowrap; }
+.loot-price span, .loot-price small { display: block; }
+.loot-price small { color: var(--muted); font-size: var(--font-meta); font-weight: 400; }
 .loot tbody tr:hover { background: var(--hover); }
 .loot-locked { margin-inline-start: var(--space-2); color: var(--muted); }
 .profit-panel { margin-top: var(--space-5); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-surface); }
