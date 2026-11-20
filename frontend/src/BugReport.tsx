@@ -12,18 +12,14 @@ export function BugReport() {
   async function submit() {
     setBusy(true);
     setStatus("");
-    try { await sendReport(report); setStatus("Report uploaded to Sentry."); }
+    try { await sendReport(report); setStatus("Report queued for Sentry delivery."); }
     catch (error) { setStatus(error instanceof Error ? error.message : "Upload failed. Please try again."); }
     finally { setBusy(false); }
   }
 
   async function copyReport() {
-    try {
-      await navigator.clipboard.writeText(report);
-      setStatus("Bug report copied to the clipboard.");
-    } catch {
-      setStatus("Clipboard unavailable. You can still send the report.");
-    }
+    try { await navigator.clipboard.writeText(report); setStatus("Bug report copied to the clipboard."); }
+    catch { setStatus("Clipboard unavailable. You can still send the report."); }
   }
 
   return (
@@ -32,7 +28,7 @@ export function BugReport() {
         <h2 className="bug-report__title">Help improve Slayer Planner</h2>
         <p className="bug-report__intro">Tell us what happened and we’ll send a focused report to help us investigate.</p>
       </div>
-      <p className="bug-report__privacy">Only your description, app version and platform are included. Saved plans, credentials, API keys and local storage are never sent.</p>
+      <p className="bug-report__privacy">Your description is sent after consent. Automatic diagnostics remove common emails, URLs, local paths and tokens; avoid pasting secrets. Saved plans and local storage are never included.</p>
       <label className="bug-report__label" htmlFor="bug-steps">What happened?</label>
       <textarea id="bug-steps" value={steps} onChange={(event) => setSteps(event.currentTarget.value)} rows={7} placeholder="Steps to reproduce, what you expected, and what you saw…" />
       <label className="check-row bug-report__consent">
