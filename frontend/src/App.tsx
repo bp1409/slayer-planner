@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
-import { CircleHelp, Crosshair, Moon, Settings, Share2, Sun } from "lucide-react";
+import { CircleDollarSign, CircleHelp, Crosshair, Moon, Settings, Share2, Sun } from "lucide-react";
 import { Modal } from "./components/ui/Modal";
 import { Calculator } from "./components/calculator/Calculator";
 import { PlannerHelp } from "./PlannerHelp";
@@ -9,6 +9,9 @@ import { slayers } from "./data/slayers";
 import { GAME_DATA_VERIFIED_DATE } from "./data/gameData";
 import { checkForUpdates } from "./lib/updater";
 import { SharePlan } from "./SharePlan";
+import { ProfitEditor } from "./ProfitEditor";
+import { ProfitPanel } from "./ProfitPanel";
+import { loadPriceTable, savePriceTable, type PriceTable } from "./lib/profit";
 
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -20,6 +23,7 @@ function subscribeToTheme(listener: () => void) {
 export default function App() {
   const [preferences, setPreferences] = useState(loadPreferences);
   const [workspace, setWorkspace] = useState(loadWorkspace);
+  const [priceTable, setPriceTable] = useState<PriceTable>(loadPriceTable);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const systemDark = useSyncExternalStore(subscribeToTheme, () => systemTheme.matches);
   const theme = preferences.theme === "system" ? (systemDark ? "dark" : "light") : preferences.theme;
@@ -32,6 +36,7 @@ export default function App() {
   }, [theme, preferences.reduceMotion]);
   useEffect(() => savePreferences(preferences), [preferences]);
   useEffect(() => saveWorkspace(workspace), [workspace]);
+  useEffect(() => savePriceTable(priceTable), [priceTable]);
   useEffect(() => {
     if (!preferences.allowUpdates) return;
     void checkForUpdates(true).then((update) => {
@@ -54,6 +59,9 @@ export default function App() {
         <Modal title="Settings" icon={<Settings size={18} aria-hidden="true" />}>
           <PlannerSettings preferences={preferences} onChange={setPreferences} />
         </Modal>
+        <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
+          <ProfitEditor table={priceTable} onChange={setPriceTable} />
+        </Modal>
         <Modal title="Share plan" icon={<Share2 size={18} aria-hidden="true" />}>
           <SharePlan plan={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)} onImport={(plan) => {
             setWorkspace((previous) => ({ ...previous, slayer: plan.slayer, plans: { ...previous.plans, [plan.slayer]: plan } }));
@@ -73,6 +81,7 @@ export default function App() {
         onSave={(plan) => setWorkspace((previous) => ({
           ...previous, plans: { ...previous.plans, [plan.slayer]: plan },
         }))} />
+      <ProfitPanel secondsPerBoss={workspace.plans[workspace.slayer]?.secondsPerBoss ?? preferences.defaultSeconds} table={priceTable} />
     </main>
   </>;
 }

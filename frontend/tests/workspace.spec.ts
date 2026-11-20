@@ -219,3 +219,15 @@ test("a second visit works offline after the service worker precache", async ({ 
   expect(offlineCache).toEqual({ shell: true, asset: true });
   await page.context().setOffline(false);
 });
+
+test("local prices update the approximate coins-per-hour table", async ({ page }) => {
+  await page.getByRole("button", { name: "Profit", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Profit" });
+  await expect(dialog).toContainText("Approximate local prices only");
+  await dialog.getByLabel("Price for Revenant Flesh").fill("10");
+  await expect(dialog.getByRole("status")).toHaveText("Prices saved locally.");
+  await page.keyboard.press("Escape");
+  const zombieTierOne = page.locator(".profit-table tbody tr").filter({ hasText: "Zombie" }).first();
+  await expect(zombieTierOne).toContainText("15");
+  await expect(zombieTierOne).toContainText("900");
+});

@@ -41,4 +41,4 @@ Use Node.js 22.18 or newer, then run `npm ci` and `npm run dev` in [`frontend/`]
 
 Game-data changes require a dated source or an explicit discrepancy note in [`frontend/GAME-DATA.md`](frontend/GAME-DATA.md). See [`frontend/README.md`](frontend/README.md) for desktop prerequisites.
 
-See [`docs/online-features.md`](docs/online-features.md) for the proposed web-only profit-pricing and username-import design. Those features are not implemented.
+The offline Profit view is implemented with user-entered approximate prices. See [`docs/online-features.md`](docs/online-features.md) for the proposed, approval-required web-only price refresh and username-import design; neither network feature is implemented.
