@@ -3,11 +3,12 @@ import test from "node:test";
 import { redactSensitiveText, sanitizeEvent } from "../src/lib/sentry.ts";
 
 test("Sentry privacy redaction removes common secrets and paths", () => {
-  const text = redactSensitiveText("token=abc123 email@example.com https://example.test C:\\Users\\Ben\\plans.json");
+  const text = redactSensitiveText("token=abc123 email@example.com https://example.test C:\\Users\\Ben\\plans.json Steps / expected");
   assert.equal(text.includes("abc123"), false);
   assert.equal(text.includes("email@example.com"), false);
   assert.equal(text.includes("https://example.test"), false);
   assert.equal(text.includes("C:\\Users\\Ben"), false);
+  assert.equal(text.includes("Steps / expected"), true);
 });
 
 test("Sentry event privacy filter removes request, user, breadcrumbs, extra and contexts", () => {

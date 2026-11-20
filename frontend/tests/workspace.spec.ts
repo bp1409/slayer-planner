@@ -126,6 +126,27 @@ test("bug report requires consent and reports delivery failures", async ({ page 
   await page.context().setOffline(false);
 });
 
+test("bug report consent persists and successful delivery is mocked", async ({ page }) => {
+  await page.evaluate(() => localStorage.removeItem("sentry-consent"));
+  await page.reload();
+  await page.route("https://o4512464093184000.ingest.de.sentry.io/**", (route) => route.fulfill({ status: 200, body: "" }));
+  await page.getByRole("button", { name: "Bug report", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Bug report" });
+  const consent = dialog.getByLabel("Allow this report and future anonymous error reports to be sent", { exact: false });
+  await expect(consent).not.toBeChecked();
+  await dialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
+  await consent.check();
+  await consent.uncheck();
+  await consent.check();
+  await page.reload();
+  await page.getByRole("button", { name: "Bug report", exact: true }).click();
+  const reloadedDialog = page.getByRole("dialog", { name: "Bug report" });
+  await expect(reloadedDialog.getByLabel("Allow this report and future anonymous error reports to be sent", { exact: false })).toBeChecked();
+  await reloadedDialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
+  await reloadedDialog.getByRole("button", { name: "Send bug report", exact: true }).click();
+  await expect(reloadedDialog.getByRole("status")).toContainText("queued for Sentry delivery");
+});
+
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("dialog", { name: "Settings" }).getByLabel("Theme").selectOption("system");

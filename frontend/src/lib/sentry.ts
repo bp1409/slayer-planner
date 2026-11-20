@@ -15,7 +15,8 @@ export function redactSensitiveText(value: string) {
     .replace(/(password|passwd|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+/gi, "$1=[redacted]")
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted-email]")
     .replace(/https?:\/\/[^\s)]+/gi, "[redacted-url]")
-    .replace(/(?:[A-Za-z]:\\|\/)(?:[^\s\\/]+[\\/])*[^\s\\/]*/g, "[redacted-path]");
+    .replace(/[A-Za-z]:\\[^\s]+/g, "[redacted-path]")
+    .replace(/\/(?:[^/\s]+\/)+[^/\s]*/g, "[redacted-path]");
 }
 
 export function sanitizeEvent(event: Sentry.ErrorEvent) {
