@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createBugReport } from "./lib/bugReport";
-import { enabled, setEnabled, sendReport } from "./lib/sentry";
+import { enabled, sendReport, sendTestException, setEnabled } from "./lib/sentry";
 export function BugReport() {
   const [steps,setSteps] = useState("");
   const [consent,setConsent] = useState(enabled);
@@ -20,6 +20,7 @@ export function BugReport() {
     <label><input type="checkbox" checked={consent} onChange={e=>{setConsent(e.target.checked);setEnabled(e.target.checked);}}/> Allow Sentry uploads and future uncaught error reporting</label>
     <button type="button" className="button" disabled={!consent || !steps.trim() || busy} onClick={()=>void submit()}>{busy?"Sending…":"Send bug report"}</button>{" "}
     <button type="button" className="button" onClick={()=>void navigator.clipboard.writeText(report).then(()=>setStatus("Copied")).catch(()=>setStatus("Clipboard unavailable"))}>Copy bug report</button>
+    {import.meta.env.DEV && <button type="button" className="button" disabled={!consent} onClick={() => { try { sendTestException(); setStatus("Sentry test exception sent."); } catch { setStatus("Sentry consent is required."); } }}>Send Sentry test</button>}
     {status && <p role="status" className="field-note">{status}</p>}
     <pre className="field-note">{report}</pre>
   </div>;
