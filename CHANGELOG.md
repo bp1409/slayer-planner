@@ -14,3 +14,8 @@
 
 - Rewrote the repository front door with download, web, screenshot, contribution, and offline-use guidance.
 - Added suggested GitHub repository topics.
+
+## 1.2.0
+
+- Extended the guarded release workflow with signed-artifact-ready x64 and arm64 macOS build/publish jobs.
+- macOS publishing preserves tag-moved checks and fails on duplicate release assets.
