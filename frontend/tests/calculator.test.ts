@@ -5,6 +5,8 @@ import { calculatePlan, getTierAccess, maxSeconds, maxXp, type PlanInputs } from
 import { loadPreferences, loadWorkspace, newPlan } from "../src/lib/preferences.ts";
 import { lootSourceNote, slayerLoot } from "../src/lib/loot.ts";
 import { formatTime } from "../src/lib/formatting.ts";
+import { GAME_DATA_VERIFIED_DATE } from "../src/data/gameData.ts";
+import { readFileSync } from "node:fs";
 
 const inputs: PlanInputs = {
   slayer: "zombie", currentXp: 0, targetLevel: 5, tier: 4,
@@ -145,6 +147,11 @@ test("saved workspace plans use a whitelist of known fields", (context) => {
   const plan = loadWorkspace().plans.zombie;
   assert.ok(plan);
   assert.equal(Object.hasOwn(plan, "unknownSecret"), false);
+});
+
+test("game-data verification date matches the audit document", () => {
+  const document = readFileSync(new URL("../GAME-DATA.md", import.meta.url), "utf8");
+  assert.ok(document.includes(`Reviewed on ${GAME_DATA_VERIFIED_DATE}`));
 });
 
 test("Aatrox perks apply independently and fractional XP is identified as estimated", () => {

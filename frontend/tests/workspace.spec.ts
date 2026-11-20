@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { GAME_DATA_VERIFIED_DATE } from "../src/data/gameData";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -98,7 +99,7 @@ test("settings, theme, persisted defaults and Escape work", async ({ page }) => 
 });
 
 test("shows the audited game-data date", async ({ page }) => {
-  await expect(page.getByText("Game data verified on 19 November 2026", { exact: true })).toBeVisible();
+  await expect(page.getByText(`Game data verified on ${GAME_DATA_VERIFIED_DATE}.`, { exact: false })).toBeVisible();
 });
 
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {

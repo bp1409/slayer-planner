@@ -74,7 +74,7 @@ export default function App() {
     </header>
     <main id="workspace" tabIndex={-1} className="workspace">
       <header className="workspace-header">
-        <div><h1>{slayer.label} Slayer</h1><p>{slayer.boss}</p><small className="data-status">Game data verified on {GAME_DATA_VERIFIED_DATE}</small></div>
+        <div><h1>{slayer.label} Slayer</h1><p>{slayer.boss}</p><small className="data-status">Game data verified on {GAME_DATA_VERIFIED_DATE}. <a href="https://github.com/bp1409/slayer-planner/blob/dev/frontend/GAME-DATA.md">Some Zombie loot figures have open discrepancies.</a></small></div>
         <a href="#loot">View loot</a>
       </header>
       <Calculator key={workspaceRevision} initial={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)}
