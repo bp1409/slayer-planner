@@ -42,6 +42,11 @@ export function PlannerSettings({ preferences, onChange }: {
         <input type="checkbox" checked={preferences.allowUpdates}
           onChange={(event) => onChange({ ...preferences, allowUpdates: event.currentTarget.checked })} />
       </label>
+      <label className="preference-row">Enable Bazaar prices (web only)
+        <input type="checkbox" checked={preferences.allowBazaar}
+          onChange={(event) => onChange({ ...preferences, allowBazaar: event.currentTarget.checked })} />
+      </label>
+      <p className="field-note">This opt-in sends only verified product IDs to Hypixel from a normal web browser. It is unavailable in the offline desktop app.</p>
     </section>
     <section>
       <h3>Calculator defaults</h3>

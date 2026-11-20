@@ -41,4 +41,4 @@ Use Node.js 22.18 or newer, then run `npm ci` and `npm run dev` in [`frontend/`]
 
 Game-data changes require a dated source or an explicit discrepancy note in [`frontend/GAME-DATA.md`](frontend/GAME-DATA.md). See [`frontend/README.md`](frontend/README.md) for desktop prerequisites.
 
-The offline Profit view is implemented with user-entered approximate prices. See [`docs/online-features.md`](docs/online-features.md) for the proposed, approval-required web-only price refresh and username-import design; neither network feature is implemented.
+The offline Profit view is implemented with user-entered approximate prices. The web build also offers an opt-in Bazaar sell-price refresh for product IDs you verify; the desktop build remains offline. See [`docs/online-features.md`](docs/online-features.md) for the boundaries and future online-feature design. Auction House fetching and username import are not implemented.

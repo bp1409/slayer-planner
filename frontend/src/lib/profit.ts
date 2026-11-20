@@ -1,7 +1,13 @@
 import { slayerIds, slayers, type SlayerId } from "../data/slayers.ts";
 import { slayerLoot } from "./loot.ts";
 
-export type PriceTable = { prices: Record<string, number>; lastEdited: string | null };
+export type PriceTable = {
+  prices: Record<string, number>;
+  lastEdited: string | null;
+  bazaarProductIds: Record<string, string>;
+  bazaarPrices: Record<string, number>;
+  bazaarFetchedAt: string | null;
+};
 export type ProfitRow = { slayer: SlayerId; tier: number; coinsPerBoss: number; coinsPerHour: number };
 
 const priceTableKey = "slayer-planner-prices";
@@ -12,7 +18,7 @@ export function lootItems() {
 }
 
 export function emptyPriceTable(): PriceTable {
-  return { prices: {}, lastEdited: null };
+  return { prices: {}, lastEdited: null, bazaarProductIds: {}, bazaarPrices: {}, bazaarFetchedAt: null };
 }
 
 function validPrice(value: unknown): value is number {
@@ -23,7 +29,7 @@ export function loadPriceTable(): PriceTable {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(priceTableKey) ?? "null");
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyPriceTable();
-    const candidate = parsed as { prices?: unknown; lastEdited?: unknown };
+    const candidate = parsed as { prices?: unknown; lastEdited?: unknown; bazaarProductIds?: unknown; bazaarPrices?: unknown; bazaarFetchedAt?: unknown };
     const prices: Record<string, number> = {};
     if (candidate.prices && typeof candidate.prices === "object" && !Array.isArray(candidate.prices)) {
       for (const item of lootItems()) {
@@ -31,7 +37,25 @@ export function loadPriceTable(): PriceTable {
         if (validPrice(value)) prices[item] = value;
       }
     }
-    return { prices, lastEdited: typeof candidate.lastEdited === "string" ? candidate.lastEdited : null };
+    const bazaarProductIds: Record<string, string> = {};
+    if (candidate.bazaarProductIds && typeof candidate.bazaarProductIds === "object" && !Array.isArray(candidate.bazaarProductIds)) {
+      for (const item of lootItems()) {
+        const value = (candidate.bazaarProductIds as Record<string, unknown>)[item];
+        if (typeof value === "string" && /^[A-Z0-9_:-]{1,80}$/.test(value)) bazaarProductIds[item] = value;
+      }
+    }
+    const bazaarPrices: Record<string, number> = {};
+    if (candidate.bazaarPrices && typeof candidate.bazaarPrices === "object" && !Array.isArray(candidate.bazaarPrices)) {
+      for (const item of lootItems()) {
+        const value = (candidate.bazaarPrices as Record<string, unknown>)[item];
+        if (validPrice(value)) bazaarPrices[item] = value;
+      }
+    }
+    return {
+      prices, bazaarProductIds, bazaarPrices,
+      lastEdited: typeof candidate.lastEdited === "string" ? candidate.lastEdited : null,
+      bazaarFetchedAt: typeof candidate.bazaarFetchedAt === "string" ? candidate.bazaarFetchedAt : null,
+    };
   } catch { return emptyPriceTable(); }
 }
 

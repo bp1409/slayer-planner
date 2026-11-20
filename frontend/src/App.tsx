@@ -60,7 +60,7 @@ export default function App() {
           <PlannerSettings preferences={preferences} onChange={setPreferences} />
         </Modal>
         <Modal title="Profit" icon={<CircleDollarSign size={18} aria-hidden="true" />}>
-          <ProfitEditor table={priceTable} onChange={setPriceTable} />
+          <ProfitEditor table={priceTable} onChange={setPriceTable} bazaarEnabled={preferences.allowBazaar && !("__TAURI__" in window)} />
         </Modal>
         <Modal title="Share plan" icon={<Share2 size={18} aria-hidden="true" />}>
           <SharePlan plan={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)} onImport={(plan) => {

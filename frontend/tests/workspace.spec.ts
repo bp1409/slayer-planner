@@ -231,3 +231,23 @@ test("local prices update the approximate coins-per-hour table", async ({ page }
   await expect(zombieTierOne).toContainText("15");
   await expect(zombieTierOne).toContainText("900");
 });
+
+test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page }) => {
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const settings = page.getByRole("dialog", { name: "Settings" });
+  await expect(settings.getByLabel("Enable Bazaar prices (web only)")).not.toBeChecked();
+  await settings.getByLabel("Enable Bazaar prices (web only)").check();
+  await page.keyboard.press("Escape");
+  await page.route("https://api.hypixel.net/v2/skyblock/bazaar", async (route) => route.fulfill({
+    status: 200, contentType: "application/json", body: JSON.stringify({ products: {
+      REVENANT_FLESH: { quick_status: { sellPrice: 10 } },
+    } }),
+  }));
+  await page.getByRole("button", { name: "Profit", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Profit" });
+  await dialog.getByLabel("Bazaar product ID for Revenant Flesh").fill("REVENANT_FLESH");
+  await dialog.getByRole("button", { name: "Refresh Bazaar sell prices" }).click();
+  await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".profit-panel .metadata")).toHaveText("Bazaar sell prices");
+});

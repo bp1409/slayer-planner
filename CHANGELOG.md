@@ -12,6 +12,7 @@
 - Added an offline approximate coins-per-hour view with locally saved per-drop prices; Magic Find and RNG Meter effects are excluded.
 - Rewrote the repository front door with download, web, screenshot, contribution, offline-use, and topic guidance.
 - Documented proposed web-only online features without implementing network access.
+- Added an opt-in web-only Bazaar sell-price refresh with verified product-ID mapping and local-price fallback. The desktop build remains offline.
 
 ## 1.0.0
 
