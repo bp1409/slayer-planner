@@ -28,6 +28,14 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (isHashedAsset) {
-    event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));
+    event.respondWith(caches.match(event.request).then(async (cached) => {
+      if (cached) return cached;
+      const response = await fetch(event.request);
+      if (response.ok) {
+        const copy = response.clone();
+        void caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+      }
+      return response;
+    }));
   }
 });
