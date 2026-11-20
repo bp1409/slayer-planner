@@ -3,6 +3,7 @@ import { NumberField, parseDecimal } from "./components/ui/NumberField";
 import { tierLabels } from "./data/slayers";
 import { isDecimalInRange, maxSeconds } from "./lib/calculator";
 import { defaults, type Preferences } from "./lib/preferences";
+import { isTauri } from "./lib/platform";
 
 export function PlannerSettings({ preferences, onChange }: {
   preferences: Preferences; onChange: (preferences: Preferences) => void;
@@ -40,7 +41,7 @@ export function PlannerSettings({ preferences, onChange }: {
       </label>
       <p className="field-note">Signed update checks are unavailable until the release signing key is configured.</p>
       <label className="preference-row">Enable Bazaar Pricing (web only)
-        <input type="checkbox" checked={preferences.allowBazaar}
+        <input type="checkbox" checked={preferences.allowBazaar} disabled={isTauri()}
           onChange={(event) => onChange({ ...preferences, allowBazaar: event.currentTarget.checked })} />
       </label>
       <p className="field-note">When enabled, the web app may refresh approximate Bazaar prices. The offline desktop app never connects.</p>
