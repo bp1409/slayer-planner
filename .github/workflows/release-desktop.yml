@@ -99,7 +99,9 @@ jobs:
       fail-fast: false
       matrix:
         target: [aarch64-apple-darwin, x86_64-apple-darwin]
-    runs-on: macos-14
+    # Use the Intel host for both targets; macos-14 resolves to an unavailable
+    # arm64 runner configuration in this repository's Actions pool.
+    runs-on: macos-13
     permissions:
       contents: read
     steps:
