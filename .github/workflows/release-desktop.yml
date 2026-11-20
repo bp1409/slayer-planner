@@ -105,7 +105,6 @@ jobs:
           release_commit="$(gh api "repos/$GH_REPO/commits/refs/tags/$TAG" --jq '.sha')"
           test "$release_commit" = "$BUILD_COMMIT"
           gh release upload --clobber "$TAG" installers/frontend/src-tauri/target/release/bundle/deb/*.deb installers/frontend/src-tauri/target/release/bundle/appimage/*.AppImage installers/linux-SHA256SUMS.txt
-          gh release edit "$TAG" --notes-start "Built from commit $BUILD_COMMIT. Checksums and build attestations are included."
 
   build-macos:
     strategy:
