@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
+const deployPath = process.env.PAGES_BASE ?? "/";
 
 export default defineConfig({
-  base: isGitHubPagesBuild ? "/slayer-planner/" : "/",
+  base: deployPath,
   plugins: [react()],
 });

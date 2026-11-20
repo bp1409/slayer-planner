@@ -33,9 +33,20 @@ small { font-size: var(--font-meta); }
 .text-button { padding: 0 var(--space-2); font-size: var(--font-small); }
 .button { padding: var(--space-1) var(--space-3); border: 1px solid var(--control-line); background: var(--raised); }
 .icon-button:hover, .text-button:hover, .button:hover { background: var(--hover); color: var(--text); }
+.disabled-action { display: inline-flex; }
+.disabled-action .icon-button { color: var(--muted); }
 .share-plan { display: grid; gap: var(--space-2); }
 .share-plan p { margin: 0; }
 .share-plan textarea { min-height: 120px; width: 100%; resize: vertical; padding: var(--space-2); color: var(--text); background: var(--surface); border: 1px solid var(--control-line); border-radius: var(--radius-control); font: var(--font-small) ui-monospace, monospace; }
+.bug-report { display: grid; gap: var(--space-3); }
+.bug-report__title { margin: 0; font-size: var(--font-title); }
+.bug-report__intro { margin: var(--space-1) 0 0; color: var(--secondary); }
+.bug-report__privacy { margin: 0; padding: var(--space-2) var(--space-3); border-inline-start: 2px solid var(--accent-fill); background: var(--raised); color: var(--muted); font-size: var(--font-small); line-height: 1.45; }
+.bug-report__label { color: var(--secondary); font-size: var(--font-small); font-weight: 650; }
+.bug-report textarea { width: 100%; min-height: 10rem; padding: var(--space-2); resize: vertical; color: var(--text); background: var(--surface); border: 1px solid var(--control-line); border-radius: var(--radius-control); }
+.bug-report__consent { align-items: flex-start; line-height: 1.4; }
+.bug-report__submit { width: 100%; min-height: var(--control-height); font-weight: 650; }
+.bug-report__status { margin: 0; }
 .share-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .icon-button[aria-expanded="true"] { background: var(--selected); color: var(--accent); }
 
@@ -131,6 +142,23 @@ progress::-moz-progress-bar { background: var(--accent-fill); }
 .loot td, .loot thead th:nth-child(n+2) { text-align: end; font-variant-numeric: tabular-nums; }
 .loot tbody tr:hover { background: var(--hover); }
 .loot-locked { margin-inline-start: var(--space-2); color: var(--muted); }
+.profit-panel { margin-top: var(--space-5); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-surface); }
+.profit-panel > .field-note { margin: var(--space-2) 0; color: var(--muted); font-size: var(--font-small); }
+.profit-times { padding-inline: 0; }
+.profit-table-wrap { overflow-x: auto; }
+.profit-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.profit-table th, .profit-table td { padding: var(--space-2) var(--space-3); text-align: end; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.profit-table th:first-child, .profit-table td:first-child { text-align: start; }
+.profit-table thead { background: var(--raised); color: var(--secondary); font-size: var(--font-small); }
+.profit-table tbody th { font-weight: 500; }
+.profit-table tbody tr:hover { background: var(--hover); }
+.price-list { display: grid; gap: var(--space-2); }
+.bazaar-editor { display: grid; gap: var(--space-2); margin-block: var(--space-4); padding-block: var(--space-3); border-block: 1px solid var(--line); }
+.bazaar-editor h3 { margin: 0; }
+.price-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, 12rem); align-items: center; gap: var(--space-3); }
+.price-row label { overflow-wrap: anywhere; }
+.price-row small { grid-column: 2; }
+.price-row .number-control input { min-width: 0; }
 
 .dialog-overlay { position: fixed; inset: 0; z-index: 5; background: var(--overlay); }
 .dialog {
@@ -159,8 +187,12 @@ progress::-moz-progress-bar { background: var(--accent-fill); }
   .results { border-inline-start: 0; border-top: 1px solid var(--line); }
 }
 @media (max-width: 25rem) {
+  .toolbar { flex-wrap: wrap; }
+  .toolbar-actions { margin-inline-start: auto; }
   .section-header, .fields, .results-body, .results > .result-message { padding-inline: var(--space-3); }
   .configuration > .check-row, .modifiers { margin-inline: var(--space-3); }
+  .profit-panel { padding: var(--space-3); }
+  .profit-table th, .profit-table td { padding-inline: var(--space-1); font-size: var(--font-meta); }
   .loot th, .loot td, .loot th:first-child, .loot th:last-child, .loot td:last-child { padding-inline: var(--space-1); }
   .loot thead th, .loot td { font-size: var(--font-meta); }
   .loot-locked { display: block; margin: 0; }

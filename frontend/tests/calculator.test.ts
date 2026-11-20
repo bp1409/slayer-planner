@@ -5,6 +5,8 @@ import { calculatePlan, getTierAccess, maxSeconds, maxXp, type PlanInputs } from
 import { loadPreferences, loadWorkspace, newPlan } from "../src/lib/preferences.ts";
 import { lootSourceNote, slayerLoot } from "../src/lib/loot.ts";
 import { formatTime } from "../src/lib/formatting.ts";
+import { GAME_DATA_VERIFIED_DATE } from "../src/data/gameData.ts";
+import { readFileSync } from "node:fs";
 
 const inputs: PlanInputs = {
   slayer: "zombie", currentXp: 0, targetLevel: 5, tier: 4,
@@ -135,6 +137,23 @@ test("legacy saved plans retain a locked tier and prompt for obsolete tiers", (c
   assert.equal(newPlan("wolf", preferences).tier, 0);
 });
 
+test("saved workspace plans use a whitelist of known fields", (context) => {
+  const values = new Map([["slayer-planner-workspace", JSON.stringify({ slayer: "zombie", plans: {
+    zombie: { ...inputs, unknownSecret: "discard me" },
+  } })]]);
+  const storage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: { getItem: (key: string) => values.get(key) ?? null } });
+  context.after(() => { if (storage) Object.defineProperty(globalThis, "localStorage", storage); else Reflect.deleteProperty(globalThis, "localStorage"); });
+  const plan = loadWorkspace().plans.zombie;
+  assert.ok(plan);
+  assert.equal(Object.hasOwn(plan, "unknownSecret"), false);
+});
+
+test("game-data verification date matches the audit document", () => {
+  const document = readFileSync(new URL("../GAME-DATA.md", import.meta.url), "utf8");
+  assert.ok(document.includes(`Reviewed on ${GAME_DATA_VERIFIED_DATE}`));
+});
+
 test("Aatrox perks apply independently and fractional XP is identified as estimated", () => {
   const xpOnly = plan({ tier: 1, aatroxXp: true, currentXp: 4975 });
   assert.equal(xpOnly.xpPerBoss, 6.25);
@@ -181,3 +200,4 @@ test("formats durations without a 24-hour rollover", () => {
   assert.equal(formatTime(90061, "units"), "1d 1h 1m 1s");
   assert.equal(formatTime(.25, "units"), "0.25 s");
 });
+// @ts-nocheck

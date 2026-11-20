@@ -1,4 +1,4 @@
-import { isSlayerId, slayers, type SlayerId } from "../data/slayers.ts";
+import { isSlayerId, slayerIds, slayers, type SlayerId } from "../data/slayers.ts";
 import { calculatePlan, isDecimalInRange, maxSeconds, type PlanInputs } from "./calculator.ts";
 import type { NumberFormat, TimeFormat } from "./formatting.ts";
 
@@ -11,6 +11,7 @@ export type Preferences = {
   reduceMotion: boolean;
   allowFutureTiers: boolean;
   allowUpdates: boolean;
+  allowBazaar: boolean;
   defaultTarget: number;
   defaultTier: number;
   defaultSeconds: number;
@@ -18,7 +19,7 @@ export type Preferences = {
 
 export const defaults: Preferences = {
   theme: "dark", numberFormat: "full", timeFormat: "units", showMilestones: true,
-  reduceMotion: false, allowFutureTiers: false, allowUpdates: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
+  reduceMotion: false, allowFutureTiers: false, allowUpdates: false, allowBazaar: false, defaultTarget: 5, defaultTier: 1, defaultSeconds: 60,
 };
 
 const preferencesKey = "slayer-planner-preferences";
@@ -56,6 +57,7 @@ export function loadPreferences(): Preferences {
     reduceMotion: saved.reduceMotion === true,
     allowFutureTiers: saved.allowFutureTiers === true,
     allowUpdates: saved.allowUpdates === true,
+    allowBazaar: saved.allowBazaar === true,
     defaultTarget: integerPreference(saved.defaultTarget, 9, defaults.defaultTarget),
     defaultTier: integerPreference(saved.defaultTier, 5, defaults.defaultTier),
     defaultSeconds: typeof saved.defaultSeconds === "number" && isDecimalInRange(saved.defaultSeconds, 0, maxSeconds)
@@ -81,8 +83,19 @@ export function loadWorkspace(): Workspace {
   if (saved.plans && typeof saved.plans === "object") {
     for (const [id, candidate] of Object.entries(saved.plans)) {
       if (!isSlayerId(id) || !candidate || typeof candidate !== "object") continue;
-      const savedPlan = candidate as PlanInputs;
-      if (savedPlan.slayer !== id) continue;
+      const raw = candidate as Record<string, unknown>;
+      if (raw.slayer !== id) continue;
+      const savedPlan: PlanInputs = {
+        slayer: id,
+        currentXp: raw.currentXp as number,
+        targetLevel: raw.targetLevel as number,
+        tier: raw.tier as number,
+        secondsPerBoss: raw.secondsPerBoss as number,
+        aatroxXp: raw.aatroxXp === true,
+        slashedPricing: raw.slashedPricing === true,
+        ...(typeof raw.confirmedAccess === "boolean" ? { confirmedAccess: raw.confirmedAccess } : {}),
+        ...(typeof raw.observedXp === "number" ? { observedXp: raw.observedXp } : {}),
+      };
       const slayer = slayers[id];
       const supportedTier = integerPreference(savedPlan.tier, slayer.tiers.length, 0);
       const plan: PlanInputs = {
@@ -100,3 +113,32 @@ export function loadWorkspace(): Workspace {
 }
 
 export const saveWorkspace = (workspace: Workspace) => write(workspaceKey, workspace);
+
+export type CompletionTime = { spawn: number; kill: number };
+export type CompletionTimes = Partial<Record<SlayerId, Partial<Record<number, CompletionTime>>>>;
+
+const completionTimesKey = "slayer-planner-completion-times";
+
+export function isCompletionTime(value: unknown): value is CompletionTime {
+  if (!value || typeof value !== "object") return false;
+  const { spawn, kill } = value as Partial<CompletionTime>;
+  return typeof spawn === "number" && typeof kill === "number" &&
+    isDecimalInRange(spawn, 0, maxSeconds) && isDecimalInRange(kill, 0, maxSeconds);
+}
+
+export function loadCompletionTimes(): CompletionTimes {
+  const saved = read(completionTimesKey);
+  const times: CompletionTimes = {};
+  for (const id of slayerIds) {
+    const tiers = saved[id];
+    if (!tiers || typeof tiers !== "object") continue;
+    slayers[id].tiers.forEach((_, index) => {
+      const tier = index + 1;
+      const value = (tiers as Record<number, unknown>)[tier];
+      if (isCompletionTime(value)) (times[id] ??= {})[tier] = value;
+    });
+  }
+  return times;
+}
+
+export const saveCompletionTimes = (times: CompletionTimes) => write(completionTimesKey, times);

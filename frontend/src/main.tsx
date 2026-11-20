@@ -2,10 +2,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { isTauri } from "./lib/platform";
+import { initSentry } from "./lib/sentry";
+initSentry();
 
 createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);
 
-if (import.meta.env.PROD && !("__TAURI__" in window) && "serviceWorker" in navigator) {
+if (import.meta.env.PROD && !isTauri() && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, { scope: import.meta.env.BASE_URL });
   });

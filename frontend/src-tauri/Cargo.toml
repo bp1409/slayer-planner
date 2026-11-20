@@ -1,6 +1,6 @@
 [package]
 name = "slayer-planner"
-version = "1.0.0"
+version = "1.2.0"
 description = "Hypixel SkyBlock Slayer XP planner"
 authors = ["Slayer XP Calculator"]
 edition = "2021"

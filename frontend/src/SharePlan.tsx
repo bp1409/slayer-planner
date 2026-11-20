@@ -1,20 +1,18 @@
 import { useState } from "react";
 import { Clipboard, Download, Upload } from "lucide-react";
-import { calculatePlan, type PlanInputs } from "./lib/calculator";
-import { decodePlan, encodePlan } from "./lib/sharing";
-import { formatNumber, formatTime } from "./lib/formatting";
+import { type PlanInputs } from "./lib/calculator";
+import { decodePlan, encodePlan, planSummary } from "./lib/sharing";
 
 export function SharePlan({ plan, onImport }: { plan: PlanInputs; onImport: (plan: PlanInputs) => void }) {
   const [text, setText] = useState("");
   const [message, setMessage] = useState("");
-  const result = calculatePlan(plan, true);
-  const summary = result.ok
-    ? `Slayer Planner — ${plan.slayer}\nTarget: level ${plan.targetLevel} (${formatNumber(result.remainingXp)} XP to go)\nBosses: ${formatNumber(result.bosses)} · Time: ${formatTime(result.timeSeconds, "units")} · Cost: ${formatNumber(result.cost)} ${result.currency}\nInputs: ${formatNumber(plan.currentXp)} XP · ${formatTime(plan.secondsPerBoss, "units")} per boss · Tier ${plan.tier}${plan.aatroxXp ? " · Aatrox XP Buff" : ""}${plan.slashedPricing ? " · Slashed Pricing" : ""}`
-    : "The current draft is incomplete; save a valid plan before copying a summary.";
+  const result = planSummary(plan);
+  const summary = result;
 
   async function copySummary() {
-    if (!result.ok || !navigator.clipboard) { setMessage("Clipboard access is unavailable."); return; }
-    await navigator.clipboard.writeText(summary); setMessage("Summary copied.");
+    if (!navigator.clipboard) { setMessage("Clipboard access is unavailable."); return; }
+    try { await navigator.clipboard.writeText(summary); setMessage("Summary copied."); }
+    catch { setMessage("Could not copy the summary. Check clipboard permissions."); }
   }
   function exportPlan() {
     const url = URL.createObjectURL(new Blob([encodePlan(plan)], { type: "application/json" }));

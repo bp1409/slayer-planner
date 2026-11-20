@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { RotateCcw } from "lucide-react";
 import { NumberField, parseDecimal } from "../ui/NumberField";
 import { isSlayerId, mayorPerks, slayerIds, slayers, tierLabels } from "../../data/slayers";
@@ -28,10 +28,11 @@ function parseDraft(draft: Draft): PlanInputs {
   };
 }
 
-export function Calculator({ initial, preferences, onFutureTiersChange, onSlayerChange, onSave }: {
+export function Calculator({ initial, preferences, onFutureTiersChange, onSlayerChange, onSave, renderProfit }: {
   initial: PlanInputs; preferences: Preferences;
   onFutureTiersChange: (allow: boolean) => void;
   onSlayerChange: (slayer: PlanInputs["slayer"]) => void; onSave: (plan: PlanInputs) => void;
+  renderProfit: (plan: PlanInputs, result: ReturnType<typeof calculatePlan>) => ReactNode;
 }) {
   const [draft, setDraft] = useState(() => draftFrom(initial));
   if (draft.slayer !== initial.slayer) setDraft(draftFrom(initial));
@@ -154,5 +155,6 @@ export function Calculator({ initial, preferences, onFutureTiersChange, onSlayer
       <Results result={result} input={plan} preferences={preferences} baseFee={baseFee} />
     </div>
     <LootTable boss={slayer.boss} tier={draft.tier} currentLevel={currentXpError ? undefined : access.currentLevel} />
+    {renderProfit(plan, result)}
   </>;
 }
