@@ -28,6 +28,13 @@ The macOS app is unsigned. If Gatekeeper blocks it, Control-click the app in Fin
 
 Updater signing is not configured in this repository yet. Before publishing updater-enabled builds, generate a Tauri updater key pair locally, keep the private key and password in GitHub Actions secrets, put only the public key in `frontend/src-tauri/tauri.conf.json`, and publish the signed `latest.json` plus matching assets. The updater setting is off by default.
 
+## Release checklist
+
+- Enable GitHub Pages with **Source: GitHub Actions** if it is not already enabled.
+- Paste the entries from [`TOPICS.txt`](TOPICS.txt) into the repository topic settings.
+- If using auto-update, generate the Tauri updater key pair and add the private key and password as repository secrets; never commit them.
+- Push the `v1.1.0` tag, then run the desktop release workflow for that tag.
+
 ## Contributing
 
 Use Node.js 22.18 or newer, then run `npm ci` and `npm run dev` in [`frontend/`](frontend/). Before opening a pull request, run `npm test`, `npm run typecheck`, `npm run build`, and `npm run test:e2e`. Preserve the offline desktop boundary, design tokens, keyboard accessibility, reduced-motion behavior, and calculator tests.
