@@ -40,7 +40,7 @@ export function PlannerSettings({ preferences, onChange }: {
       </label>
       <p className="field-note">Signed update checks are unavailable until the release signing key is configured.</p>
       <label className="preference-row">Enable Bazaar Pricing (web only)
-        <input type="checkbox" checked={preferences.allowBazaar}
+        <input type="checkbox" checked={preferences.allowBazaar} disabled={isTauri()}
           onChange={(event) => onChange({ ...preferences, allowBazaar: event.currentTarget.checked })} />
       </label>
       <p className="field-note">When enabled, the web app may refresh approximate Bazaar prices. The offline desktop app never connects.</p>
