@@ -17,6 +17,15 @@ export function BugReport() {
     finally { setBusy(false); }
   }
 
+  async function copyReport() {
+    try {
+      await navigator.clipboard.writeText(report);
+      setStatus("Bug report copied to the clipboard.");
+    } catch {
+      setStatus("Clipboard unavailable. You can still send the report.");
+    }
+  }
+
   return (
     <div className="bug-report">
       <div>
@@ -33,6 +42,7 @@ export function BugReport() {
       <button type="button" className="button bug-report__submit" disabled={!consent || !steps.trim() || busy} onClick={() => void submit()}>
         {busy ? "Sending…" : "Send bug report"}
       </button>
+      <button type="button" className="text-button" onClick={() => void copyReport()}>Copy bug report</button>
       {status && <p role="status" className="field-note bug-report__status">{status}</p>}
     </div>
   );

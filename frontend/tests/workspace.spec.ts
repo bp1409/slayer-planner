@@ -108,8 +108,22 @@ test("bug report modal has one consented send action", async ({ page }) => {
   const dialog = page.getByRole("dialog", { name: "Bug report" });
   await expect(dialog.getByLabel("What happened?", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Send bug report", exact: true })).toHaveCount(1);
-  await expect(dialog.getByRole("button", { name: "Copy bug report", exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Copy bug report", exact: true })).toHaveCount(1);
   await expect(dialog.getByRole("button", { name: "Send Sentry test", exact: true })).toHaveCount(0);
+});
+
+test("bug report requires consent and reports delivery failures", async ({ page }) => {
+  await page.getByRole("button", { name: "Bug report", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Bug report" });
+  const send = dialog.getByRole("button", { name: "Send bug report", exact: true });
+  await expect(send).toBeDisabled();
+  await dialog.getByLabel("What happened?", { exact: true }).fill("The planner did not update.");
+  await dialog.getByText("Allow this report and future anonymous error reports to be sent").click();
+  await expect(send).toBeEnabled();
+  await page.context().setOffline(true);
+  await send.click();
+  await expect(dialog.getByRole("status")).toContainText("could not deliver");
+  await page.context().setOffline(false);
 });
 
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {
