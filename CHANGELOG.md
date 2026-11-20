@@ -9,6 +9,7 @@
 - Added game-data verification status sourced from the dated audit.
 - Added guarded Linux, macOS, and Windows desktop release jobs with tag-moved checks and duplicate-asset protection.
 - Added an opt-in, disabled-by-default updater registration path and documented signing setup.
+- Added an offline approximate coins-per-hour view with locally saved per-drop prices; Magic Find and RNG Meter effects are excluded.
 - Rewrote the repository front door with download, web, screenshot, contribution, offline-use, and topic guidance.
 - Documented proposed web-only online features without implementing network access.
 
