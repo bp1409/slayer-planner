@@ -6,6 +6,8 @@ import { PlannerHelp } from "./PlannerHelp";
 import { PlannerSettings } from "./PlannerSettings";
 import { loadPreferences, loadWorkspace, newPlan, savePreferences, saveWorkspace } from "./lib/preferences";
 import { slayers } from "./data/slayers";
+import { GAME_DATA_VERIFIED_DATE } from "./data/gameData";
+import { checkForUpdates } from "./lib/updater";
 import { SharePlan } from "./SharePlan";
 
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
@@ -30,6 +32,14 @@ export default function App() {
   }, [theme, preferences.reduceMotion]);
   useEffect(() => savePreferences(preferences), [preferences]);
   useEffect(() => saveWorkspace(workspace), [workspace]);
+  useEffect(() => {
+    if (!preferences.allowUpdates) return;
+    void checkForUpdates(true).then((update) => {
+      if (update) console.info(`Slayer Planner update ${update.version} is available.`);
+    }).catch(() => {
+      // Update checks are optional; local planning remains available when unavailable.
+    });
+  }, [preferences.allowUpdates]);
 
   return <>
     <a className="skip-link" href="#workspace">Skip to calculator</a>
@@ -54,7 +64,7 @@ export default function App() {
     </header>
     <main id="workspace" tabIndex={-1} className="workspace">
       <header className="workspace-header">
-        <div><h1>{slayer.label} Slayer</h1><p>{slayer.boss}</p></div>
+        <div><h1>{slayer.label} Slayer</h1><p>{slayer.boss}</p><small className="data-status">Game data verified on {GAME_DATA_VERIFIED_DATE}</small></div>
         <a href="#loot">View loot</a>
       </header>
       <Calculator key={workspaceRevision} initial={workspace.plans[workspace.slayer] ?? newPlan(workspace.slayer, preferences)}

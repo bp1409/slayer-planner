@@ -93,6 +93,11 @@ test("settings, theme, persisted defaults and Escape work", async ({ page }) => 
   await settings.click();
   await dialog.getByRole("button", { name: "Reset preferences" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(dialog.getByLabel("Check for updates")).not.toBeChecked();
+});
+
+test("shows the audited game-data date", async ({ page }) => {
+  await expect(page.getByText("Game data verified on 19 November 2026", { exact: true })).toBeVisible();
 });
 
 test("system theme, independent perks and completed targets update in place", async ({ page }) => {

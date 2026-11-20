@@ -19,3 +19,13 @@
 
 - Extended the guarded release workflow with signed-artifact-ready x64 and arm64 macOS build/publish jobs.
 - macOS publishing preserves tag-moved checks and fails on duplicate release assets.
+
+## 1.3.0
+
+- Added Discord-ready plan summaries and compact versioned JSON export/import.
+- Added strict import validation and tests for malformed, oversized, and malicious input.
+
+## 1.4.0
+
+- Added a game-data verification label sourced from the dated audit and an opt-in, disabled-by-default Tauri updater plugin.
+- Documented updater signing setup and proposed web-only online features without implementing them.
