@@ -4,12 +4,7 @@ An offline Hypixel SkyBlock Slayer planner for mapping XP, quest access, time, c
 
 ![Slayer Planner desktop screenshot](docs/screenshots/planner-default.png)
 
-The image is a placeholder. Capture and save these screenshots exactly here:
-
-- `docs/screenshots/planner-default.png` — desktop planner at 1160×760 with Zombie selected and the default settings.
-- `docs/screenshots/planner-future-tier.png` — planner showing the explicit future-tier estimate/access confirmation state.
-- `docs/screenshots/planner-loot-audit.png` — planner scrolled to the loot reference with a visible source-discrepancy note.
-- `docs/screenshots/planner-web-mobile.png` — deployed web version in a narrow mobile viewport.
+More views: [future-tier estimate](docs/screenshots/planner-future-tier.png), [loot audit](docs/screenshots/planner-loot-audit.png), and [mobile web version](docs/screenshots/planner-web-mobile.png).
 
 ## Download and use
 

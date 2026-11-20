@@ -1,6 +1,6 @@
 # Slayer Planner
 
-An offline Hypixel SkyBlock Slayer calculator for Windows and Linux. The app stores preferences and the last valid plan for each Slayer locally.
+An offline Hypixel SkyBlock Slayer calculator for Windows, macOS, Linux, and the web. The app stores preferences and the last valid plan for each Slayer locally.
 
 ## Run the workspace
 
@@ -26,7 +26,7 @@ npm run test:e2e
 
 Set `PLAYWRIGHT_CHANNEL=msedge` to run browser tests in an installed Edge instead. Linux test hosts may need `npx playwright install --with-deps chromium`.
 
-Install the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/) before using `npm run tauri:dev` or `npm run tauri:build`. The latter produces NSIS/MSI bundles on Windows and deb/AppImage bundles on Linux under `src-tauri/target/release/bundle/`. The verification workflow compiles without installers. The Linux release workflow builds from an explicit version tag and uploads to its existing release. It fails if the tag moved during the build or if assets with those names already exist.
+Install the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/) before using `npm run tauri:dev` or `npm run tauri:build`. The latter produces NSIS/MSI bundles on Windows, DMG bundles on macOS, and deb/AppImage bundles on Linux under `src-tauri/target/release/bundle/`. The verification workflow compiles without installers. The desktop release workflow builds each platform from an explicit version tag and uploads to its existing release. It fails if the tag moved during the build or if assets with those names already exist.
 
 ## Game data
 
@@ -34,6 +34,6 @@ The [game-data audit](GAME-DATA.md) records sources, verification dates and disc
 
 Calculation and validation are independent of React in `src/lib/calculator.ts`. Shared visual tokens live in `src/styles/tokens.css`.
 
-The static web build uses `/slayer-planner/` as its GitHub Pages base path and `/` locally. Service-worker registration is skipped inside Tauri. Run `npm test`, `npm run typecheck`, `npm run build`, and `npm run test:e2e` before submitting changes.
+The static web build uses `/slayer-planner/` as its GitHub Pages base path and `/` locally. It includes a versioned service worker that precaches the production asset list and can serve the app offline after its first load. Service-worker registration is skipped inside Tauri. Run `npm test`, `npm run typecheck`, `npm run build`, and `npm run test:e2e` before submitting changes.
 
-The planner includes local plan sharing and shows the audit date for the bundled game data. The Tauri updater plugin is present but disabled until the user enables **Check for updates** and the release signing key is configured.
+The planner includes local plan sharing with validated JSON import/export and Discord-ready summaries, and shows the audit date for the bundled game data. The updater plugin is registered only when a build provides the real `TAURI_UPDATER_PUBLIC_KEY` environment variable; the default desktop build has no updater registration. If enabled, it remains disabled in the UI until the user turns on **Check for updates** and a real signing key is configured.

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -183,4 +184,38 @@ test("share dialog rejects malformed and malicious plan input", async ({ page })
   await json.fill('{"v":1,"plan":{"slayer":"zombie","currentXp":0,"targetLevel":5,"tier":1,"confirmedAccess":false,"secondsPerBoss":60,"aatroxXp":false,"slashedPricing":false},"__proto__":{"polluted":true}}');
   await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
   await expect(dialog.getByRole("status")).toContainText("unsupported");
+});
+
+test("share dialog copies a summary and exports then imports a plan", async ({ page }) => {
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:4190" });
+  await page.getByRole("button", { name: "Share plan", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Share plan" });
+  await dialog.getByRole("button", { name: "Copy summary", exact: true }).click();
+  await expect(dialog.getByRole("status")).toHaveText("Summary copied.");
+  const downloadPromise = page.waitForEvent("download");
+  await dialog.getByRole("button", { name: "Export plan", exact: true }).click();
+  const download = await downloadPromise;
+  const exportedPath = await download.path();
+  expect(exportedPath).not.toBeNull();
+  const json = await readFile(exportedPath!, "utf8");
+  await dialog.getByLabel("Import plan JSON").fill(json);
+  await dialog.getByRole("button", { name: "Import plan", exact: true }).click();
+  await expect(dialog.getByRole("status")).toHaveText("Plan imported.");
+  await expect(page.getByLabel("Slayer", { exact: true })).toHaveValue("zombie");
+});
+
+test("a second visit works offline after the service worker precache", async ({ page }) => {
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(async () => { await navigator.serviceWorker?.ready; });
+  await expect(page.getByRole("heading", { name: "Zombie Slayer" })).toBeVisible();
+  await page.reload({ waitUntil: "networkidle" });
+  await page.context().setOffline(true);
+  const offlineCache = await page.evaluate(async () => {
+    const cache = await caches.open((await caches.keys()).find((key) => key.startsWith("slayer-planner-"))!);
+    const shell = await cache.match("./index.html");
+    const asset = (await cache.keys()).some((request) => request.url.includes("/assets/"));
+    return { shell: shell?.ok === true, asset };
+  });
+  expect(offlineCache).toEqual({ shell: true, asset: true });
+  await page.context().setOffline(false);
 });
