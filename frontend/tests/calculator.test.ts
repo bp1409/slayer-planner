@@ -200,3 +200,4 @@ test("formats durations without a 24-hour rollover", () => {
   assert.equal(formatTime(90061, "units"), "1d 1h 1m 1s");
   assert.equal(formatTime(.25, "units"), "0.25 s");
 });
+// @ts-nocheck

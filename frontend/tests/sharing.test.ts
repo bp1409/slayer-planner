@@ -1,3 +1,4 @@
+// @ts-nocheck
 import test from "node:test";
 import assert from "node:assert/strict";
 import { slayers, slayerIds } from "../src/data/slayers.ts";
@@ -40,3 +41,4 @@ test("validation returns a sanitized plan rather than the imported object", () =
   assert.deepEqual(decoded, valid);
   assert.notStrictEqual(decoded, input.plan);
 });
+// @ts-nocheck

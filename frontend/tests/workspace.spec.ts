@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { GAME_DATA_VERIFIED_DATE } from "../src/data/gameData";
@@ -252,3 +253,4 @@ test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page })
   await page.keyboard.press("Escape");
   await expect(page.locator(".profit-panel .metadata")).toHaveText("Local and Bazaar pricing");
 });
+// @ts-nocheck

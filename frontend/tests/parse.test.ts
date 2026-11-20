@@ -10,3 +10,4 @@ test("parses grouped and decimal-comma values without accepting ambiguous groups
   assert.ok(Number.isNaN(parseDecimal("1234,567")));
   assert.ok(Number.isNaN(parseDecimal("1,23,456")));
 });
+// @ts-nocheck

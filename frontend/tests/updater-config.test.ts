@@ -9,3 +9,4 @@ test("updater registration is opt-in and disabled for the default desktop build"
   assert.match(cargo, /tauri-plugin-updater\s*=\s*"=2\.14\.1"/);
   assert.doesNotMatch(main, /\.plugin\(tauri_plugin_updater::Builder::new\(\)\.build\(\)\)\s*\.run/);
 });
+// @ts-nocheck

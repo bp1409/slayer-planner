@@ -15,8 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "types": ["node", "@playwright/test"],
     "jsx": "react-jsx"
   },
-  "include": ["src"],
+  "include": ["src", "tests"],
   "references": []
 }
