@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { formatNumber } from "./lib/formatting";
 import { lootItems, type PriceTable } from "./lib/profit";
-import { fetchBazaarPrices } from "./lib/bazaar";
+import { fetchBazaarPrices, suggestedBazaarProductId } from "./lib/bazaar";
 
 export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceTable; onChange: (table: PriceTable) => void; bazaarEnabled: boolean }) {
   const [prices, setPrices] = useState(table.prices);
   const [message, setMessage] = useState("");
-  const [productIds, setProductIds] = useState(table.bazaarProductIds);
+  const [productIds, setProductIds] = useState(() => Object.fromEntries(
+    lootItems().map((item) => [item, table.bazaarProductIds[item] ?? suggestedBazaarProductId(item)]),
+  ));
   const [refreshing, setRefreshing] = useState(false);
   function update(item: string, raw: string) {
     const value = raw === "" ? 0 : Number(raw);
@@ -33,7 +35,7 @@ export function ProfitEditor({ table, onChange, bazaarEnabled }: { table: PriceT
     <p className="field-note">Last edited: {table.lastEdited ?? "Never"}</p>
     {bazaarEnabled && <section className="bazaar-editor" aria-labelledby="bazaar-title">
       <h3 id="bazaar-title">Optional Bazaar refresh</h3>
-      <p className="field-note">Enter verified product IDs. Bazaar sell prices override matching local prices until the next refresh; unmapped drops keep their local values. No plan data is sent.</p>
+      <p className="field-note">Product IDs are suggested from the existing drop names and remain editable. Bazaar sell prices override matching local prices until the next refresh; unmapped drops keep their local values. No plan data is sent.</p>
       <div className="price-list">{lootItems().map((item) => <div className="price-row" key={`bazaar-${item}`}>
         <label htmlFor={`bazaar-${item}`}>{item}</label>
         <input id={`bazaar-${item}`} placeholder="e.g. REVENANT_FLESH" value={productIds[item] ?? ""}

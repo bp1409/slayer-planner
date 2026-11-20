@@ -245,7 +245,7 @@ test("Bazaar refresh is opt-in and uses a mocked web response", async ({ page })
   }));
   await page.getByRole("button", { name: "Profit", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Profit" });
-  await dialog.getByLabel("Bazaar product ID for Revenant Flesh").fill("REVENANT_FLESH");
+  await expect(dialog.getByLabel("Bazaar product ID for Revenant Flesh")).toHaveValue("REVENANT_FLESH");
   await dialog.getByRole("button", { name: "Refresh Bazaar sell prices" }).click();
   await expect(dialog.getByRole("status")).toContainText("Bazaar prices refreshed");
   await page.keyboard.press("Escape");

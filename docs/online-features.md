@@ -1,6 +1,6 @@
 # Optional online features (proposal)
 
-The current profit panel uses user-entered local prices and bundled base loot rates. The approved Bazaar refresh is web-only and opt-in: it fetches sell prices only for product IDs the user explicitly enters, keeps local prices as fallback, and stores the timestamp locally. Bazaar values remain approximate and outside the audited game-data model and `src/lib/calculator.ts`. Auction House fetching and Hypixel username import are not implemented.
+The current profit panel uses user-entered local prices and bundled base loot rates. The approved Bazaar refresh is web-only and opt-in: it suggests product IDs from the existing drop labels, preserves any user edit, fetches sell prices for those IDs, keeps local prices as fallback, and stores the timestamp locally. These suggestions are editable because display labels are not treated as authoritative Bazaar mappings. Bazaar values remain approximate and outside the audited game-data model and `src/lib/calculator.ts`. Auction House fetching and Hypixel username import are not implemented.
 
 They should be web-only opt-in features. The desktop build must retain `connect-src 'none'`, ship no online-feature client code, and never require an account, API key, telemetry, or a network connection for local planning. The web UI should show when online mode is enabled, explain what leaves the browser, and provide an offline switch.
 

@@ -8,6 +8,11 @@ type BazaarProduct = { quick_status?: { sellPrice?: unknown } };
 
 const endpoint = "https://api.hypixel.net/v2/skyblock/bazaar";
 
+/** Builds a visible, editable suggestion from the existing loot-table label. */
+export function suggestedBazaarProductId(item: string): string {
+  return item.trim().replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "").toUpperCase();
+}
+
 function isFiniteNonNegative(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }

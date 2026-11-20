@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseBazaarResponse } from "../src/lib/bazaar.ts";
+import { parseBazaarResponse, suggestedBazaarProductId } from "../src/lib/bazaar.ts";
+
+test("suggests product IDs from loot labels", () => {
+  assert.equal(suggestedBazaarProductId("Revenant Flesh"), "REVENANT_FLESH");
+  assert.equal(suggestedBazaarProductId("Enchanted Book (Smite VI)"), "ENCHANTED_BOOK_SMITE_VI");
+});
 
 test("parses only finite non-negative Bazaar sell prices for requested IDs", () => {
   const result = parseBazaarResponse({ products: {
