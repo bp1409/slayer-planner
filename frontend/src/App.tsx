@@ -7,7 +7,6 @@ import { PlannerSettings } from "./PlannerSettings";
 import { loadCompletionTimes, loadPreferences, loadWorkspace, newPlan, saveCompletionTimes, savePreferences, saveWorkspace } from "./lib/preferences";
 import { slayers } from "./data/slayers";
 import { GAME_DATA_VERIFIED_DATE } from "./data/gameData";
-import { checkForUpdates } from "./lib/updater";
 import { SharePlan } from "./SharePlan";
 import { ProfitEditor } from "./ProfitEditor";
 import { ProfitPanel } from "./ProfitPanel";
@@ -40,14 +39,6 @@ export default function App() {
   useEffect(() => saveWorkspace(workspace), [workspace]);
   useEffect(() => saveCompletionTimes(completionTimes), [completionTimes]);
   useEffect(() => savePriceTable(priceTable), [priceTable]);
-  useEffect(() => {
-    if (!preferences.allowUpdates) return;
-    void checkForUpdates(true).then((update) => {
-      if (update) console.info(`Slayer Planner update ${update.version} is available.`);
-    }).catch(() => {
-      // Update checks are optional; local planning remains available when unavailable.
-    });
-  }, [preferences.allowUpdates]);
 
   return <>
     <a className="skip-link" href="#workspace">Skip to calculator</a>

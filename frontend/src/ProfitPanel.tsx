@@ -4,6 +4,7 @@ import { slayers, tierLabels } from "./data/slayers";
 import { maxSeconds, type calculatePlan, type PlanInputs } from "./lib/calculator";
 import { formatNumber } from "./lib/formatting";
 import { isCompletionTime, type CompletionTime } from "./lib/preferences";
+import { isFreshBazaarPrice } from "./lib/bazaar";
 import { coinsPerHour, estimateProfit, type PriceTable } from "./lib/profit";
 
 function display(value: number | null, signed = false) {
@@ -27,7 +28,8 @@ export function ProfitPanel({ plan, result, time, onTimeChange, table, bazaarEna
   const completionTime = { spawn: parseTime(spawn), kill: parseTime(kill) };
   const valid = isCompletionTime(completionTime);
   const seconds = valid ? completionTime.spawn + completionTime.kill : NaN;
-  const cached = bazaarEnabled ? table.bazaarPrices : {};
+  const cached = bazaarEnabled && table.bazaarFetchedAt && isFreshBazaarPrice(table.bazaarFetchedAt)
+    ? table.bazaarPrices : {};
   const prices = { ...cached, ...table.prices };
 
   function update(field: keyof CompletionTime, raw: string) {
@@ -42,6 +44,7 @@ export function ProfitPanel({ plan, result, time, onTimeChange, table, bazaarEna
   return <section className="profit-panel" aria-labelledby="profit-title">
     <header className="section-header"><h2 id="profit-title">Expected profit</h2>
       <span className="metadata">{Object.keys(cached).length ? "Local and Bazaar pricing" : "Local prices"}</span></header>
+    {bazaarEnabled && table.bazaarFetchedAt && !Object.keys(cached).length && <p className="field-note">Bazaar prices are unavailable or stale. Refresh them or use local prices.</p>}
     {tierLabels[plan.tier - 1] && <>
       <div className="fields profit-times">
         <NumberField label="Spawn time" unit="s" value={spawn} onChange={(raw) => update("spawn", raw)} />

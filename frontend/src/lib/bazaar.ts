@@ -4,6 +4,13 @@ export type BazaarSnapshot = {
   fetchedAt: string;
 };
 
+export const bazaarPriceMaxAgeMs = 15 * 60 * 1000;
+
+export function isFreshBazaarPrice(fetchedAt: string, now = Date.now()) {
+  const timestamp = Date.parse(fetchedAt);
+  return Number.isFinite(timestamp) && timestamp <= now && now - timestamp <= bazaarPriceMaxAgeMs;
+}
+
 type BazaarProduct = { quick_status?: { sellPrice?: unknown } };
 
 const endpoint = "https://api.hypixel.net/v2/skyblock/bazaar";

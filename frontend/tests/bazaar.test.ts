@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bazaarProductIds, fetchBazaarPrices, parseBazaarResponse } from "../src/lib/bazaar.ts";
+import { bazaarPriceMaxAgeMs, bazaarProductIds, fetchBazaarPrices, isFreshBazaarPrice, parseBazaarResponse } from "../src/lib/bazaar.ts";
 
 test("maps verified product IDs without inventing IDs for unmapped drops", () => {
   assert.equal(bazaarProductIds["Revenant Flesh"], "REVENANT_FLESH");
@@ -31,4 +31,11 @@ test("surfaces Bazaar network, HTTP, malformed JSON, API and no-price failures",
   await assert.rejects(fetchBazaarPrices(ids, async () => new Response("{")), /invalid response/);
   await assert.rejects(fetchBazaarPrices(ids, async () => Response.json({ success: false })), /API failure/);
   await assert.rejects(fetchBazaarPrices(ids, async () => Response.json({ products: {} })), /no prices/);
+});
+
+test("rejects stale or future Bazaar snapshots", () => {
+  const now = Date.parse("2026-11-20T12:00:00.000Z");
+  assert.equal(isFreshBazaarPrice(new Date(now - bazaarPriceMaxAgeMs + 1).toISOString(), now), true);
+  assert.equal(isFreshBazaarPrice(new Date(now - bazaarPriceMaxAgeMs - 1).toISOString(), now), false);
+  assert.equal(isFreshBazaarPrice(new Date(now + 1).toISOString(), now), false);
 });

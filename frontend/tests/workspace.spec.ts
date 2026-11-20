@@ -94,7 +94,7 @@ test("settings, theme, persisted defaults and Escape work", async ({ page }) => 
   await settings.click();
   await dialog.getByRole("button", { name: "Reset preferences" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(dialog.getByLabel("Check for updates")).not.toBeChecked();
+  await expect(dialog).toContainText("Signed update checks are unavailable");
 });
 
 test("shows the audited game-data date", async ({ page }) => {
