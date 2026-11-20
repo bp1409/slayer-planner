@@ -19,5 +19,10 @@ export function sendReport(message: string) {
   if (!enabled()) throw new Error("Consent required");
   if (!message.trim()) throw new Error("Please describe the bug");
   initSentry();
-  Sentry.captureMessage(message.slice(0, 4000), "error");
+  if (!initialized) throw new Error("Sentry is unavailable in this environment");
+  Sentry.captureFeedback({
+    message: message.slice(0, 4000),
+    source: "slayer-planner-bug-report",
+    url: typeof window === "undefined" ? undefined : window.location.href,
+  });
 }
