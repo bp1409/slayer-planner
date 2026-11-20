@@ -2,6 +2,7 @@ name: Verify desktop workspace
 
 on:
   push:
+    # Verify production and integration branches on every push.
     branches: [main, dev]
   pull_request:
     branches: [main, dev]
