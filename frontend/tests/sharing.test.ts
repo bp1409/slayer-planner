@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { slayers, slayerIds } from "../src/data/slayers.ts";
-import { decodePlan, encodePlan, validateSharedPlan } from "../src/lib/sharing.ts";
+import { decodePlan, encodePlan, planSummary, validateSharedPlan } from "../src/lib/sharing.ts";
 
 const valid = { slayer: "zombie", currentXp: 0, targetLevel: 5, tier: 1, confirmedAccess: false, secondsPerBoss: 60, aatroxXp: false, slashedPricing: false } as const;
 test("share plan round-trips through versioned JSON for every Slayer", () => {
@@ -26,6 +26,13 @@ test("share plan rejects malformed, wrong-type, missing, oversized, and maliciou
   ] as const;
   for (const [text, message] of cases) assert.throws(() => decodePlan(text), message);
   assert.equal(Object.prototype.polluted, undefined);
+});
+
+test("summary uses Slayer labels and future-access wording", () => {
+  const summary = planSummary({ ...valid, tier: 2 });
+  assert.match(summary, /Zombie Tier II/);
+  assert.match(summary, /Future estimate - assumes access/);
+  assert.doesNotMatch(summary, /zombie.*Tier 2/);
 });
 test("validation returns a sanitized plan rather than the imported object", () => {
   const input = { v: 1, plan: { ...valid } };
